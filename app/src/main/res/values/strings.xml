@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Nectar</string>
+    <string name="online_groc">online groceries</string>
+    <string name="welcome_text">Welcome to our store</string>
+    <string name="welcome_subtext">Get your groceries in as fast as one hour</string>
+    <string name="welcome_button_text">Get Started</string>
+</resources>
