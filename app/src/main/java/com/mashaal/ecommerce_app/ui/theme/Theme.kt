@@ -9,15 +9,20 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.mashaal.ecommerce_app.R
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = MainThemeColor,
     secondary = PurpleGrey80,
     tertiary = Pink80
+)
+
+val GilroyBoldFont = FontFamily(
+    Font(R.font.gilroy_bold)
 )
 
 val GilroyMediumFont = FontFamily(
@@ -30,19 +35,16 @@ val GilroyRegularFont = FontFamily(
 
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = MainThemeColor,
     secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
+    tertiary = Pink40,
     background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
+    surface = CardBackgroundColor,
+    onPrimary = ButtonTextColor,
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onSurface = Color(0xFF1C1B1F)
 )
 
 @Composable

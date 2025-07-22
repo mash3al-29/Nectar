@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.multidex)
     implementation(libs.concurrent.futures)
     implementation(libs.guava)
+    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.coil.compose)
 }
 
 hilt {

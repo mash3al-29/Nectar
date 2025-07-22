@@ -8,27 +8,39 @@ import androidx.compose.ui.unit.sp
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    bodyLarge = TextStyle(
+    titleMedium = TextStyle(
+        fontFamily = GilroyBoldFont,
+        fontWeight = FontWeight.W400,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.15.sp
+    ),
+    bodySmall = TextStyle(
         fontFamily = GilroyMediumFont,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.W400,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = GilroyRegularFont,
+        fontWeight = FontWeight.W600,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
+    ),
     titleLarge = TextStyle(
-        fontFamily = GilroyMediumFont,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
+        fontFamily = GilroyRegularFont,
+        fontWeight = FontWeight.W600,
+        fontSize = 20.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
-    labelSmall = TextStyle(
-        fontFamily = GilroyMediumFont,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+    bodyMedium = TextStyle(
+        fontFamily = GilroyRegularFont,
+        fontWeight = FontWeight.W600,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.25.sp
     )
-    */
 )
