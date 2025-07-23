@@ -7,12 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
+import com.mashaal.ecommerce_app.ui.theme.AppIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +16,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,10 +26,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.mashaal.ecommerce_app.ui.theme.GilroyBoldFont
-import com.mashaal.ecommerce_app.ui.theme.GilroyMediumFont
-import com.mashaal.ecommerce_app.ui.theme.GilroyRegularFont
-import com.mashaal.ecommerce_app.ui.theme.MainThemeColor
+import com.mashaal.ecommerce_app.R
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.AddToBasketButton
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.CollapsibleSection
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.QuantityButton
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.SectionDivider
+import com.mashaal.ecommerce_app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,10 +50,10 @@ fun ProductScreen(
     val productDetailRotation by animateFloatAsState(targetValue = if (productDetailExpanded) 90f else 0f, label = "productDetailRotation")
     val nutritionRotation by animateFloatAsState(targetValue = if (nutritionExpanded) 90f else 0f, label = "nutritionRotation")
     val reviewRotation by animateFloatAsState(targetValue = if (reviewExpanded) 90f else 0f, label = "reviewRotation")
-    val dividerColor = Color(0xB3E3E3E3) // hsla(0, 0%, 89%, 0.7)
+    val dividerColor = DividerColor
     if (state.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = MainThemeColor)
+            CircularProgressIndicator(color = colorResource(R.color.main_theme_color))
         }
         return
     }
@@ -62,7 +61,7 @@ fun ProductScreen(
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 text = "Error: ${state.error}",
-                color = Color.Red,
+                color = Red,
                 style = TextStyle(fontFamily = GilroyMediumFont, fontSize = 16.sp)
             )
         }
@@ -74,15 +73,15 @@ fun ProductScreen(
                 title = {  },
                 navigationIcon = {
                     IconButton(onClick = {
-                        viewModel.onEvent(ProductScreenEvent.OnBackClicked)
                         onBackClick()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(AppIcons.Back, contentDescription = stringResource(R.string.back),Modifier.size(35.dp))
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Share functionality */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share")
+                    IconButton(onClick = { // to be implemented
+                        }) {
+                        Icon(AppIcons.Share, contentDescription = stringResource(R.string.share))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -149,9 +148,9 @@ fun ProductScreen(
                             .background(Color.White)
                     ){
                         Icon(
-                            imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = if (isFavorite) Color.Red else Color.Gray
+                            imageVector = if (isFavorite) AppIcons.FavoriteFilled else AppIcons.FavoriteOutlined,
+                            contentDescription = stringResource(R.string.favorite),
+                            tint = if (isFavorite) Red else Gray
                         )
                     }
                 }
@@ -160,7 +159,7 @@ fun ProductScreen(
                         text = productItem.detail,
                         fontFamily = GilroyMediumFont,
                         fontSize = 16.sp,
-                        color = Color.Gray
+                        color = ProductDetailColor
                     )
                 }
                 Spacer(modifier = Modifier.height(30.dp))
@@ -176,7 +175,7 @@ fun ProductScreen(
                         QuantityButton(
                             text = "−",
                             backgroundColor = Color.White,
-                            contentColor = Color.hsl(0f, 0f, 0.7f, 1f),
+                            contentColor = Gray,
                             onClick = {
                                 if (quantity > 1) {
                                     viewModel.onEvent(ProductScreenEvent.OnQuantityChanged(quantity - 1))
@@ -188,15 +187,15 @@ fun ProductScreen(
                             fontFamily = GilroyBoldFont,
                             fontSize = 18.sp,
                             modifier = Modifier
-                                .width(60.dp)
-                                .border(width = 1.dp, color = Color.LightGray, shape = RoundedCornerShape(15.dp))
+                                .width(50.dp)
+                                .border(width = 1.dp, color = LightGray, shape = RoundedCornerShape(15.dp))
                                 .padding(vertical = 12.dp, horizontal = 15.dp),
                             textAlign = TextAlign.Center
                         )
                         QuantityButton(
                             text = "+",
                             backgroundColor = Color.White,
-                            contentColor = MainThemeColor,
+                            contentColor = colorResource(R.color.main_theme_color),
                             onClick = {
                                 if (quantity < 99) {
                                     viewModel.onEvent(ProductScreenEvent.OnQuantityChanged(quantity + 1))
@@ -216,7 +215,7 @@ fun ProductScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 SectionDivider(dividerColor)
                 CollapsibleSection(
-                    title = "Product Detail",
+                    title = stringResource(R.string.product_detail),
                     isExpanded = productDetailExpanded,
                     rotationValue = productDetailRotation,
                     onToggle = { productDetailExpanded = !productDetailExpanded }
@@ -226,7 +225,7 @@ fun ProductScreen(
                             text = productItem.description,
                             fontFamily = GilroyRegularFont,
                             fontSize = 14.sp,
-                            color = Color.DarkGray,
+                            color = DarkGray,
                             lineHeight = 24.sp
                         )
                     }
@@ -234,7 +233,7 @@ fun ProductScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 SectionDivider(dividerColor)
                 CollapsibleSection(
-                    title = "Nutritions",
+                    title = stringResource(R.string.nutrition),
                     isExpanded = nutritionExpanded,
                     rotationValue = nutritionRotation,
                     onToggle = { nutritionExpanded = !nutritionExpanded }
@@ -257,13 +256,13 @@ fun ProductScreen(
                                             text = nutrient,
                                             fontFamily = GilroyMediumFont,
                                             fontSize = 14.sp,
-                                            color = Color.DarkGray
+                                            color = DarkGray
                                         )
                                         Text(
                                             text = value,
                                             fontFamily = GilroyMediumFont,
                                             fontSize = 14.sp,
-                                            color = Color.DarkGray
+                                            color = DarkGray
                                         )
                                     }
                                 }
@@ -274,7 +273,7 @@ fun ProductScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 SectionDivider(dividerColor)
                 CollapsibleSection(
-                    title = "Review",
+                    title = stringResource(R.string.review),
                     isExpanded = reviewExpanded,
                     rotationValue = reviewRotation,
                     onToggle = { reviewExpanded = !reviewExpanded }
@@ -283,9 +282,9 @@ fun ProductScreen(
                         state.product?.let { productItem ->
                             repeat(5) { index ->
                                 Icon(
-                                    imageVector = Icons.Default.Star,
+                                    imageVector = AppIcons.Star,
                                     contentDescription = null,
-                                    tint = if (index < productItem.review) Color.hsl(11f, 0.88f, 0.60f, 1f) else Color.LightGray,
+                                    tint = if (index < productItem.review) StarColor else LightGray,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
