@@ -5,36 +5,34 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
+import com.mashaal.ecommerce_app.ui.theme.AppIcons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.domain.model.Product
+import com.mashaal.ecommerce_app.ui.Common.SearchBar
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.ProductsRow
 
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = hiltViewModel(),
-    onProductClick: (Product) -> Unit = {},
+    onProductClick: (Product) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Scaffold(
-        bottomBar = {
-            BottomNavBar(
-                onShopClick = { viewModel.onEvent(MainScreenEvent.OnShopTabClicked) },
-                onExploreClick = { viewModel.onEvent(MainScreenEvent.OnExploreTabClicked) },
-                onCartClick = { viewModel.onEvent(MainScreenEvent.OnCartTabClicked) }
-            )
-        },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        contentColor = Color.White,
+        containerColor = Color.White,
         modifier = modifier
     ) { paddingValues ->
         if (state.isLoading) {
@@ -48,17 +46,16 @@ fun MainScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(top = 50.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_nectar),
-                    contentDescription = "Carrot Icon",
-                    modifier = Modifier.size(24.dp)
+                    contentDescription = stringResource(R.string.carrot_icon),
+                    modifier = Modifier.size(70.dp).padding(top = 50.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -67,9 +64,10 @@ fun MainScreen(
                     horizontalArrangement = Arrangement.Center
                 ){
                     Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Location Icon",
-                        modifier = modifier.padding(end = 7.dp),
+                        imageVector = AppIcons.Location,
+                        contentDescription = stringResource(R.string.location_icon),
+                        modifier = Modifier.size(28.dp).padding(end = 7.dp),
+                        tint = Color.Black
                     )
                     Text(
                         text = state.location,
@@ -94,25 +92,9 @@ fun MainScreen(
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Exclusive Offer",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    
-                    SeeAllButton(
-                        onClick = { // Handle see all click
-                            }
-                    )
-                }
-                
+                HeaderRow(R.string.exclusive_offer, {
+                    // Handle see all click
+                })
                 Spacer(modifier = Modifier.height(8.dp))
                 if (state.exclusiveOffers.isNotEmpty()) {
                     ProductsRow(
@@ -121,26 +103,13 @@ fun MainScreen(
                         onAddToCartClick = { viewModel.onEvent(MainScreenEvent.OnAddToCartClicked) }
                     )
                 } else {
-                    Text("No exclusive offers available")
+
+                    Text(stringResource(R.string.no_exclusive_offers))
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Best Selling",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    SeeAllButton(
-                        onClick = { // Handle see all click
-                            }
-                    )
-                }
+                HeaderRow(R.string.best_selling, {
+                    // Handle see all click
+                })
                 Spacer(modifier = Modifier.height(8.dp))
                 if (state.bestSelling.isNotEmpty()) {
                     ProductsRow(
@@ -149,26 +118,12 @@ fun MainScreen(
                         onAddToCartClick = { viewModel.onEvent(MainScreenEvent.OnAddToCartClicked) }
                     )
                 } else {
-                    Text("No best selling products available")
+                    Text(stringResource(R.string.no_best_selling))
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Groceries",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    SeeAllButton(
-                        onClick = {
-                        // Handle see all click
-                            }
-                    )
-                }
+                HeaderRow(R.string.groceries, {
+                // Handle see all click
+                })
                 Spacer(modifier = Modifier.height(8.dp))
                 if (state.groceries.isNotEmpty()) {
                     ProductsRow(
@@ -177,7 +132,7 @@ fun MainScreen(
                         onAddToCartClick = { viewModel.onEvent(MainScreenEvent.OnAddToCartClicked) }
                     )
                 } else {
-                    Text("No grocery products available")
+                    Text(stringResource(R.string.no_grocery_products))
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.mashaal.ecommerce_app.domain.usecase.GetAllProductsUseCase
+import kotlinx.coroutines.flow.catch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,7 +19,7 @@ class MainScreenViewModel @Inject constructor(
     private val _state = MutableStateFlow(MainScreenState())
     val state: StateFlow<MainScreenState> = _state.asStateFlow()
     init {
-        loadMockData()
+        loadData()
     }
     fun onEvent(event: MainScreenEvent) {
         when (event) {
@@ -32,36 +33,35 @@ class MainScreenViewModel @Inject constructor(
                 // Handle add to cart
             }
             is MainScreenEvent.OnShopTabClicked -> {
-                // handle shop navigation
+                _state.update { it.copy(selectedTabIndex = 0) }
             }
             is MainScreenEvent.OnExploreTabClicked -> {
-                // handle home navigation
+                _state.update { it.copy(selectedTabIndex = 1) }
             }
             is MainScreenEvent.OnCartTabClicked -> {
-                // Handle tab navigation
+                _state.update { it.copy(selectedTabIndex = 2) }
             }
         }
     }
 
-    private fun loadMockData() {
+    private fun loadData() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            
-            try {
-                val products = getAllProductsUseCase.execute()
-                _state.update { it.copy(
-                     exclusiveOffers = products,
-                     bestSelling = products.shuffled(),
-                     groceries = products.shuffled(),
-                     isLoading = false
-                 )}
-            } catch (e: Exception) {
-                _state.update { it.copy(
-                    isLoading = false,
-                    error = e.message ?: "Unknown error occurred"
-                )}
+                getAllProductsUseCase.execute().catch { e ->
+                    _state.update { it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Unknown error occurred"
+                    )}
+                }.collect { productsList ->
+                    _state.update { it.copy(
+                        exclusiveOffers = productsList,
+                        bestSelling = productsList.shuffled(),
+                        groceries = productsList.shuffled(),
+                        isLoading = false
+                    )}
+                }
+
             }
         }
     }
-}
 

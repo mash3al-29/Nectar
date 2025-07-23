@@ -4,4 +4,56 @@
     <string name="welcome_text">Welcome to our store</string>
     <string name="welcome_subtext">Get your groceries in as fast as one hour</string>
     <string name="welcome_button_text">Get Started</string>
+    
+    <!-- MainScreen -->
+    <string name="carrot_icon">Carrot Icon</string>
+    <string name="location_icon">Location Icon</string>
+    <string name="search_store">Search store</string>
+    <string name="banner_image">Banner Image %1$d</string>
+    <string name="exclusive_offer">Exclusive Offer</string>
+    <string name="see_all">See all</string>
+    <string name="no_exclusive_offers">No exclusive offers available</string>
+    <string name="best_selling">Best Selling</string>
+    <string name="no_best_selling">No best selling products available</string>
+    <string name="groceries">Groceries</string>
+    <string name="no_grocery_products">No grocery products available</string>
+    
+    <!-- BottomNavBar -->
+    <string name="nav_shop">Shop</string>
+    <string name="nav_explore">Explore</string>
+    <string name="nav_cart">Cart</string>
+    
+    <!-- ProductScreen -->
+    <string name="back">Back</string>
+    <string name="share">Share</string>
+    <string name="favorite">Favorite</string>
+    <string name="product_detail">Product Detail</string>
+    <string name="nutrition">Nutrition</string>
+    <string name="review">Review</string>
+    <string name="add_to_basket">Add To Basket</string>
+    <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
+    <string name="apply_filter">Apply Filter</string>
+    
+    <!-- FilterBottomSheet -->
+    <string name="filters">Filters</string>
+    <string name="price_range">Price Range</string>
+    <string name="product_portion">Product Portion</string>
+    <string name="price_under_2">Under $2</string>
+    <string name="price_2_to_4">$2 - $4</string>
+    <string name="price_4_to_6">$4 - $6</string>
+    <string name="price_6_to_8">$6 - $8</string>
+    <string name="price_8_to_10">$8 - $10</string>
+    <string name="price_10_to_12">$10 - $12</string>
+    <string name="price_12_to_15">$12 - $15</string>
+    <string name="price_15_to_20">$15 - $20</string>
+    <string name="no_products_found">No products found with this criteria</string>
+
+    <string name="category_fresh_fruits">Fresh Fruits &amp; Vegetable</string>
+    <string name="category_cooking_oil">Cooking Oil &amp; Ghee</string>
+    <string name="category_meat">Meat &amp; Fish</string>
+    <string name="category_bakery">Bakery &amp; Snacks</string>
+    <string name="category_dairy">Dairy &amp; Eggs</string>
+    <string name="category_beverages">Beverages</string>
+    <string name="find_products">Find Products</string>
 </resources>

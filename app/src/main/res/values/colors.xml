@@ -10,4 +10,13 @@
     <color name="main_theme_color">#53B175</color>
     <color name="subtext_color">#FCFCFC</color>
     <color name="button_text_color">#FFF9FF</color>
+    
+    <!-- Additional colors from the app -->
+    <color name="gray">#808080</color>
+    <color name="light_gray">#D3D3D3</color>
+    <color name="dark_gray">#A9A9A9</color>
+    <color name="red">#FF0000</color>
+    <color name="search_background">#F2F3F2</color>
+    <color name="divider_color">#B3E3E3E3</color>
+    <color name="star_color">#F09A59</color>
 </resources>

@@ -17,5 +17,4 @@ sealed class ProductScreenEvent {
     data class OnQuantityChanged(val quantity: Int) : ProductScreenEvent()
     data object OnFavoriteToggled : ProductScreenEvent()
     data object OnAddToCartClicked : ProductScreenEvent()
-    data object OnBackClicked : ProductScreenEvent()
 }

@@ -10,7 +10,8 @@ data class MainScreenState(
     val error: String = "",
     val searchQuery: String = "",
     val selectedCategory: String? = null,
-    val location: String = "Alexandria, Egypt"
+    val location: String = "Alexandria, Egypt",
+    val selectedTabIndex: Int = 0
 )
 
 sealed class MainScreenEvent {

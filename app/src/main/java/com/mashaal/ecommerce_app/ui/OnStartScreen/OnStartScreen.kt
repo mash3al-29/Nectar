@@ -21,7 +21,7 @@ import com.mashaal.ecommerce_app.ui.theme.GilroyMediumFont
 import com.mashaal.ecommerce_app.ui.theme.GilroyRegularFont
 
 @Composable
-fun OnStartScreen(modifier: Modifier = Modifier, onNavigateToMainScreen: () -> Unit) {
+fun OnStartScreen(onNavigateToMainScreen: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
