@@ -3,6 +3,7 @@ package com.mashaal.ecommerce_app.di
 import android.content.Context
 import androidx.room.Room.databaseBuilder
 import com.mashaal.ecommerce_app.data.Dao.ProductDao
+import com.mashaal.ecommerce_app.data.Dao.CartDao
 import com.mashaal.ecommerce_app.data.Database.ProductDatabase
 import dagger.Module
 import dagger.Provides
@@ -21,12 +22,20 @@ object DatabaseModule {
             context,
             ProductDatabase::class.java,
             "product_database"
-        ).build()
+        )
+        .fallbackToDestructiveMigration() // For development - removes all data on schema change
+        .build()
     }
 
     @Provides
     @Singleton
     fun provideProductDao(database: ProductDatabase): ProductDao {
         return database.productDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideCartDao(database: ProductDatabase): CartDao {
+        return database.cartDao()
     }
 }

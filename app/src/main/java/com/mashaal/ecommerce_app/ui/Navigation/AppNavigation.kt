@@ -4,12 +4,12 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -18,7 +18,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mashaal.ecommerce_app.ui.Common.BottomNavBar
 import com.mashaal.ecommerce_app.ui.OnStartScreen.OnStartScreen
 import com.mashaal.ecommerce_app.ui.SplashScreen.SplashScreen
 import com.mashaal.ecommerce_app.ui.MainScreen.MainScreen
@@ -26,6 +25,11 @@ import com.mashaal.ecommerce_app.ui.ProductScreen.ProductScreen
 import com.mashaal.ecommerce_app.ui.ProductScreen.ProductScreenViewModel
 import com.mashaal.ecommerce_app.ui.CategoriesScreen.CategoriesScreen
 import com.mashaal.ecommerce_app.ui.CategorySelectedScreen.CategorySelectedScreen
+import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreen
+import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreenViewModel
+import com.mashaal.ecommerce_app.ui.MainScreen.MainScreenViewModel
+import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreen
+import com.mashaal.ecommerce_app.ui.theme.White
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -38,6 +42,12 @@ sealed class Screen(val route: String) {
     object ProductDetail : Screen("product_detail/{productId}") {
         fun createRoute(productId: Int) = "product_detail/$productId"
     }
+    object Filter : Screen("filter/{categoryName}") {
+        fun createRoute(categoryName: String): String {
+            return "filter/$categoryName"
+        }
+    }
+    object MyCart : Screen("my_cart")
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -46,40 +56,13 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val actions = remember(navController) { NavigationActions(navController) }
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val selectedTabIndex = when (currentRoute) {
-        Screen.Main.route -> 0
-        Screen.Categories.route -> 1
-        else -> 0
-    }
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        contentWindowInsets = WindowInsets.statusBars,
         bottomBar = {
-            when (currentRoute) {
-                Screen.Main.route, Screen.Categories.route -> {
-                    BottomNavBar(
-                        onShopClick = {
-                            if (currentRoute != Screen.Main.route) {
-                                navController.navigate(Screen.Main.route) {
-                                    popUpTo(Screen.Main.route) { inclusive = true }
-                                }
-                            }
-                        },
-                        onExploreClick = {
-                            if (currentRoute != Screen.Categories.route) {
-                                navController.navigate(Screen.Categories.route)
-                            }
-                        },
-                        onCartClick = {
-                            // to be implemented
-                        },
-                        selectedIndex = selectedTabIndex
-                    )
-                }
-                else -> {}
-            }
+            BottomBarController(currentRoute, navController)
         },
-        containerColor = Color.White,
-        contentColor = Color.White
+        containerColor = White,
+        contentColor = White
     ) { paddingValues ->
         NavHost(
             navController = navController,
@@ -104,10 +87,10 @@ fun AppNavigation() {
             composable(
                 route = Screen.OnStart.route,
                 enterTransition = {
-                    fadeIn(animationSpec = tween(durationMillis = 1000))
+                    fadeIn(tween(500))
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(durationMillis = 1000))
+                    fadeOut(tween(500))
                 }
             ) {
                 OnStartScreen(
@@ -119,13 +102,15 @@ fun AppNavigation() {
             composable(
                 route = Screen.Main.route,
                 enterTransition = {
-                    fadeIn(animationSpec = tween(durationMillis = 1000))
+                    fadeIn(tween(500))
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(durationMillis = 1000))
+                    fadeOut(tween(500))
                 }
             ) {
+                val viewModel = hiltViewModel<MainScreenViewModel>()
                 MainScreen(
+                    viewModel = viewModel,
                     onProductClick = { product ->
                         actions.navigateToProductDetail(product.id)
                     }
@@ -134,15 +119,18 @@ fun AppNavigation() {
             composable(
                 route = Screen.Categories.route,
                 enterTransition = {
-                    fadeIn(animationSpec = tween(durationMillis = 1000))
+                    fadeIn(tween(500))
                 },
                 exitTransition = {
-                    fadeOut(animationSpec = tween(durationMillis = 1000))
+                    fadeOut(tween(500))
                 }
             ) {
                 CategoriesScreen(
                     onCategoryClick = { category ->
                         actions.navigateToCategorySelected(category)
+                    },
+                    onProductClick = { product ->
+                        actions.navigateToProductDetail(product.id)
                     }
                 )
             }
@@ -161,12 +149,31 @@ fun AppNavigation() {
                 }
             ) { backStackEntry ->
                 val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+                
+                val priceRange = backStackEntry.savedStateHandle.get<String?>("selectedPriceRange")
+                val productPortions = backStackEntry.savedStateHandle.get<Set<String>>("selectedProductPortions")
+                
+                val filterResults: Pair<String?, Set<String>>? = if (priceRange != null || (productPortions != null && productPortions.isNotEmpty())) {
+                    Pair(priceRange, productPortions ?: emptySet<String>())
+                } else {
+                    null
+                }
+                
+                if (filterResults != null) {
+                    backStackEntry.savedStateHandle.remove<String>("selectedPriceRange")
+                    backStackEntry.savedStateHandle.remove<Set<String>>("selectedProductPortions")
+                }
+                
                 CategorySelectedScreen(
                     categoryName = categoryName,
                     onBackClick = { navController.popBackStack() },
                     onProductClick = { product ->
                         actions.navigateToProductDetail(product.id)
                     },
+                    navigateToFilter = { category ->
+                        actions.navigateToFilter(category)
+                    },
+                    filterResults = filterResults
                 )
             }
             composable(
@@ -190,11 +197,40 @@ fun AppNavigation() {
                 }
                 ProductScreen(
                     onBackClick = { navController.popBackStack() },
-                    onAddToCartClick = {
-                    // to be implemented
+                    viewModel = viewModel
+                )
+            }
+
+            composable(
+                route = Screen.Filter.route,
+                arguments = listOf(
+                    navArgument("categoryName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val viewModel = hiltViewModel<FilterScreenViewModel>()
+                FilterScreen(
+                    onBackClick = { navController.navigateUp() },
+                    onApplyFilter = { selectedPriceRange, selectedProductPortions ->
+                        val previousBackStackEntry = navController.previousBackStackEntry
+                        previousBackStackEntry?.savedStateHandle?.set("selectedPriceRange", selectedPriceRange)
+                        previousBackStackEntry?.savedStateHandle?.set("selectedProductPortions", selectedProductPortions)
+                        
+                        navController.navigateUp()
                     },
                     viewModel = viewModel
                 )
+            }
+
+            composable(
+                route = Screen.MyCart.route,
+                enterTransition = {
+                    fadeIn(animationSpec = tween(durationMillis = 500))
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(durationMillis = 500))
+                }
+            ) {
+                MyCartScreen()
             }
         }
     }
@@ -215,8 +251,16 @@ fun AppNavigation() {
         fun navigateToProductDetail(productId: Int) {
             navController.navigate(Screen.ProductDetail.createRoute(productId))
         }
-        
+
         fun navigateToCategorySelected(categoryName: String) {
             navController.navigate(Screen.CategorySelected.createRoute(categoryName))
+        }
+
+        fun navigateToFilter(categoryName: String) {
+            navController.navigate(Screen.Filter.createRoute(categoryName))
+        }
+
+        fun navigateToMyCart() {
+            navController.navigate(Screen.MyCart.route)
         }
     }

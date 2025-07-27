@@ -18,34 +18,29 @@ class CategorySelectedViewModel @Inject constructor(
     private val getProductsByCategoryAndPriceUseCase: GetProductsByCategoryAndPriceUseCase,
     private val getProductsByCategoryAndDetailUseCase: GetProductsByCategoryAndDetailUseCase,
     private val getProductsByCategoryPriceAndDetailUseCase: GetProductsByCategoryPriceAndDetailUseCase,
+    private val addToCartUseCase: AddToCartUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(CategorySelectedState())
     val state: StateFlow<CategorySelectedState> = _state.asStateFlow()
 
     fun onEvent(event: CategorySelectedEvent) {
         when (event) {
-            is CategorySelectedEvent.OnFilterClicked -> {
-                _state.update { it.copy(showFilterBottomSheet = !it.showFilterBottomSheet) }
-            }
             is CategorySelectedEvent.OnAddToCartClicked -> {
-                // to be implemented
-                println("Product added to cart")
+                addToCart(event.product)
             }
-            is CategorySelectedEvent.OnPriceRangeSelected -> {
-                _state.update { it.copy(selectedPriceRange = event.priceRange) }
-            }
-            is CategorySelectedEvent.OnProductPortionSelected -> {
-                val currentDetails = _state.value.selectedProductPortions.toMutableSet()
-                if (event.selected) {
-                    currentDetails.add(event.portion)
-                } else {
-                    currentDetails.remove(event.portion)
-                }
-                _state.update { it.copy(selectedProductPortions = currentDetails) }
-            }
-            is CategorySelectedEvent.OnApplyFilter -> {
-                applyFilters()
-                _state.update { it.copy(showFilterBottomSheet = false) }
+        }
+    }
+
+    private fun addToCart(product: Product) {
+        viewModelScope.launch {
+            try {
+                addToCartUseCase.execute(
+                    productId = product.id,
+                    quantity = 1,
+                    portion = product.detail
+                )
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e.message ?: "Failed to add to cart") }
             }
         }
     }
@@ -60,6 +55,8 @@ class CategorySelectedViewModel @Inject constructor(
                     filteredProducts = emptyList(),
                     isLoading = false
                 ) }
+                
+                checkAndApplyFilters()
             } catch (e: Exception) {
                 _state.update { it.copy(
                     isLoading = false,
@@ -68,7 +65,30 @@ class CategorySelectedViewModel @Inject constructor(
             }
         }
     }
-    
+
+    fun applyFilterResults(priceRange: String?, productPortions: Set<String>) {
+        if (priceRange != null || productPortions.isNotEmpty()) {
+            _state.update { it.copy(
+                selectedPriceRange = priceRange,
+                selectedProductPortions = productPortions
+            ) }
+            
+            if (_state.value.products.isNotEmpty()) {
+                viewModelScope.launch {
+                    applyFilters()
+                }
+            }
+        }
+    }
+
+    private fun checkAndApplyFilters() {
+        if (_state.value.selectedPriceRange != null || _state.value.selectedProductPortions.isNotEmpty()) {
+            viewModelScope.launch {
+                applyFilters()
+            }
+        }
+    }
+
     private fun applyFilters() {
         viewModelScope.launch {
             try {
@@ -77,48 +97,64 @@ class CategorySelectedViewModel @Inject constructor(
                 val selectedProductPortions = _state.value.selectedProductPortions
                 
                 if (priceRange == null && selectedProductPortions.isEmpty()) {
-                    _state.update { it.copy(filteredProducts = _state.value.products) }
+                    _state.update { it.copy(
+                        filteredProducts = emptyList(),
+                        error = null
+                    ) }
                     return@launch
                 }
-                val filteredProducts = when {
-                    priceRange != null && selectedProductPortions.isNotEmpty() -> {
-                        val results = mutableListOf<Product>()
-                        val (minPrice, maxPrice) = parsePriceRange(priceRange)
-                        
-                        for (portion in selectedProductPortions) {
-                            val products = getProductsByCategoryPriceAndDetailUseCase.execute(categoryName, minPrice, maxPrice, portion)
-                            results.addAll(products)
-                        }
-                        results.distinctBy { it.id }
-                    }
-                    priceRange != null -> {
-                        val (minPrice, maxPrice) = parsePriceRange(priceRange)
-                        getProductsByCategoryAndPriceUseCase.execute(categoryName, minPrice, maxPrice)
-                    }
-                    else -> {
-                        val results = mutableListOf<Product>()
-                        for (portion in selectedProductPortions) {
-                            val products = getProductsByCategoryAndDetailUseCase.execute(categoryName, portion)
-                            results.addAll(products)
-                        }
-                        results.distinctBy { it.id }
-                    }
-                }
+                
+                val filteredProducts = fetchFilteredProducts(
+                    categoryName, 
+                    priceRange, 
+                    selectedProductPortions
+                )
                 
                 _state.update { it.copy(
                     filteredProducts = filteredProducts,
-                    showFilterBottomSheet = false,
                     error = if (filteredProducts.isEmpty()) "No products match your filter criteria" else null
                 ) }
             } catch (e: Exception) {
                 _state.update { it.copy(
-                    error = e.message ?: "Failed to apply filters",
-                    showFilterBottomSheet = false
+                    error = e.message ?: "Failed to apply filters"
                 ) }
             }
         }
     }
-    
+
+    private suspend fun fetchFilteredProducts(
+        categoryName: String,
+        priceRange: String?,
+        selectedProductPortions: Set<String>
+    ): List<Product> {
+        return when {
+            priceRange != null && selectedProductPortions.isNotEmpty() -> {
+                val results = mutableListOf<Product>()
+                val (minPrice, maxPrice) = parsePriceRange(priceRange)
+                
+                for (portion in selectedProductPortions) {
+                    val products = getProductsByCategoryPriceAndDetailUseCase.execute(
+                        categoryName, minPrice, maxPrice, portion
+                    )
+                    results.addAll(products)
+                }
+                results.distinctBy { it.id }
+            }
+            priceRange != null -> {
+                val (minPrice, maxPrice) = parsePriceRange(priceRange)
+                getProductsByCategoryAndPriceUseCase.execute(categoryName, minPrice, maxPrice)
+            }
+            else -> {
+                val results = mutableListOf<Product>()
+                for (portion in selectedProductPortions) {
+                    val products = getProductsByCategoryAndDetailUseCase.execute(categoryName, portion)
+                    results.addAll(products)
+                }
+                results.distinctBy { it.id }
+            }
+        }
+    }
+
     private fun parsePriceRange(priceRange: String): Pair<Double, Double> {
         return when (priceRange) {
             "Under $2" -> 0.0 to 2.0

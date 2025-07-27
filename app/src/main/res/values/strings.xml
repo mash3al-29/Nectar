@@ -31,6 +31,7 @@
     <string name="nutrition">Nutrition</string>
     <string name="review">Review</string>
     <string name="add_to_basket">Add To Basket</string>
+    <string name="added_to_cart">Added!</string>
     <string name="collapse">Collapse</string>
     <string name="expand">Expand</string>
     <string name="apply_filter">Apply Filter</string>
@@ -39,6 +40,34 @@
     <string name="filters">Filters</string>
     <string name="price_range">Price Range</string>
     <string name="product_portion">Product Portion</string>
+    
+    <!-- Cart Screen -->
+    <string name="my_cart">My Cart</string>
+    <string name="cart_empty">Your cart is empty</string>
+    <string name="remove_item">Remove item</string>
+    <string name="go_to_checkout">Go to Checkout</string>
+    
+    <!-- Search -->
+    <string name="no_products_found">No products found for \"%1$s\"</string>
+
+    <!-- General Messages -->
+    <string name="error_prefix">Error: %1$s</string>
+    <string name="failed_to_add_cart">Failed to add to cart</string>
+    <string name="failed_to_load_cart">Failed to load cart</string>
+    <string name="failed_to_update_quantity">Failed to update quantity</string>
+    <string name="failed_to_remove_item">Failed to remove item</string>
+    <string name="unknown_error">Unknown error occurred</string>
+    <string name="failed_to_load_products">Failed to load products for %1$s</string>
+    <string name="failed_to_load_categories">Failed to load categories</string>
+    <string name="product_not_found">Product not found</string>
+    
+    <!-- Categories Screen -->
+    <string name="find_products">Find Products</string>
+    <string name="no_products_found_category">No products found for %1$s</string>
+    
+    <!-- Share -->
+    <string name="share_product">Share Product</string>
+    <string name="share_product_text">Check out this amazing product: %1$s - $%2$.2f\n\nGet it from our grocery app!</string>
     <string name="price_under_2">Under $2</string>
     <string name="price_2_to_4">$2 - $4</string>
     <string name="price_4_to_6">$4 - $6</string>
@@ -47,13 +76,12 @@
     <string name="price_10_to_12">$10 - $12</string>
     <string name="price_12_to_15">$12 - $15</string>
     <string name="price_15_to_20">$15 - $20</string>
-    <string name="no_products_found">No products found with this criteria</string>
 
+    <!-- Categories -->
     <string name="category_fresh_fruits">Fresh Fruits &amp; Vegetable</string>
     <string name="category_cooking_oil">Cooking Oil &amp; Ghee</string>
     <string name="category_meat">Meat &amp; Fish</string>
     <string name="category_bakery">Bakery &amp; Snacks</string>
     <string name="category_dairy">Dairy &amp; Eggs</string>
     <string name="category_beverages">Beverages</string>
-    <string name="find_products">Find Products</string>
 </resources>

@@ -35,4 +35,7 @@ interface ProductDao {
     
     @Query("SELECT * FROM products WHERE category = :category AND price >= :minPrice AND price <= :maxPrice AND detail LIKE '%' || :detail || '%'")
     suspend fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): List<ProductEntity>
+    
+    @Query("SELECT * FROM products WHERE name LIKE '%' || :query || '%' OR detail LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%'")
+    suspend fun searchProducts(query: String): List<ProductEntity>
 }

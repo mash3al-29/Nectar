@@ -11,4 +11,5 @@ interface ProductRepository {
     suspend fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): List<Product>
     suspend fun getProductsByCategoryAndDetail(category: String, detail: String): List<Product>
     suspend fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): List<Product>
+    suspend fun searchProducts(query: String): List<Product>
 }

@@ -1,6 +1,7 @@
 package com.mashaal.ecommerce_app.di
 
 import com.mashaal.ecommerce_app.domain.repository.ProductRepository
+import com.mashaal.ecommerce_app.domain.repository.CartRepository
 import com.mashaal.ecommerce_app.domain.usecase.*
 import dagger.Module
 import dagger.Provides
@@ -31,5 +32,47 @@ object UseCaseModule {
     @Singleton
     fun provideGetProductsByCategory(productRepository: ProductRepository): GetProductsByCategoryUseCase {
         return GetProductsByCategoryUseCase(productRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSearchProductsUseCase(productRepository: ProductRepository): SearchProductsUseCase {
+        return SearchProductsUseCase(productRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetCartUseCase(cartRepository: CartRepository): GetCartUseCase {
+        return GetCartUseCase(cartRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAddToCartUseCase(cartRepository: CartRepository): AddToCartUseCase {
+        return AddToCartUseCase(cartRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideRemoveFromCartUseCase(cartRepository: CartRepository): RemoveFromCartUseCase {
+        return RemoveFromCartUseCase(cartRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideUpdateCartQuantityUseCase(cartRepository: CartRepository): UpdateCartQuantityUseCase {
+        return UpdateCartQuantityUseCase(cartRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetCartItemCountUseCase(cartRepository: CartRepository): GetCartItemCountUseCase {
+        return GetCartItemCountUseCase(cartRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideGetCartTotalQuantityUseCase(cartRepository: CartRepository): GetCartTotalQuantityUseCase {
+        return GetCartTotalQuantityUseCase(cartRepository)
     }
 }

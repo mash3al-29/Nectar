@@ -7,7 +7,8 @@ data class ProductScreenState(
     val quantity: Int = 1,
     val isFavorite: Boolean = false,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    val addToCartSuccess: Boolean = false
 ){
     val totalPrice: Float
         get() = ((product?.price ?: 0.0) * quantity).toFloat()

@@ -2,10 +2,24 @@ package com.mashaal.ecommerce_app.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.mashaal.ecommerce_app.R
 
-// Set of Material typography styles to start with
+
+val GilroyBoldFont = FontFamily(
+    Font(R.font.gilroy_bold)
+)
+
+val GilroyMediumFont = FontFamily(
+    Font(R.font.gilroy_medium)
+)
+
+val GilroyRegularFont = FontFamily(
+    Font(R.font.gilroy_regular)
+)
 val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = GilroyBoldFont,
