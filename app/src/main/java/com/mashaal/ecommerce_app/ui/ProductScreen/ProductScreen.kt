@@ -269,7 +269,9 @@ fun ProductScreen(
                         state.addToCartSuccess -> R.string.added_to_cart
                         else -> R.string.add_to_basket
                     },
-                    enabled = state.product != null
+                    enabled = state.product != null,
+                    containerColor = MainThemeColor,
+                    textColor = White
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }

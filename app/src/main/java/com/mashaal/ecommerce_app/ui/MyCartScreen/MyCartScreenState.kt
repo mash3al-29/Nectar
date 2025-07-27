@@ -31,4 +31,4 @@ sealed class MyCartScreenEvent {
     data class OnQuantityChanged(val productId: Int, val quantity: Int) : MyCartScreenEvent()
     data class OnRemoveItem(val productId: Int) : MyCartScreenEvent()
     data object OnCheckoutClicked : MyCartScreenEvent()
-} 
+}

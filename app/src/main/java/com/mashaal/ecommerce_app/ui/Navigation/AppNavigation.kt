@@ -1,5 +1,7 @@
 package com.mashaal.ecommerce_app.ui.Navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mashaal.ecommerce_app.ui.AcceptedOrderScreen.AcceptedOrderScreen
 import com.mashaal.ecommerce_app.ui.OnStartScreen.OnStartScreen
 import com.mashaal.ecommerce_app.ui.SplashScreen.SplashScreen
 import com.mashaal.ecommerce_app.ui.MainScreen.MainScreen
@@ -29,6 +32,7 @@ import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreen
 import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreenViewModel
 import com.mashaal.ecommerce_app.ui.MainScreen.MainScreenViewModel
 import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreen
+import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreenViewModel
 import com.mashaal.ecommerce_app.ui.theme.White
 
 sealed class Screen(val route: String) {
@@ -48,8 +52,14 @@ sealed class Screen(val route: String) {
         }
     }
     object MyCart : Screen("my_cart")
+
+    object AcceptedOrder : Screen("accepted_order/{totalPrice}") {
+        fun createRoute(totalPrice: Double) = "accepted_order/$totalPrice"
+    }
+
 }
 
+@RequiresApi(Build.VERSION_CODES.S)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppNavigation() {
@@ -230,12 +240,32 @@ fun AppNavigation() {
                     fadeOut(animationSpec = tween(durationMillis = 500))
                 }
             ) {
-                MyCartScreen()
+                val viewModel = hiltViewModel<MyCartScreenViewModel>()
+                MyCartScreen(
+                    viewModel,
+                    { price ->
+                        actions.navigateToOnAcceptedScreen(price)
+                    },
+                )
+            }
+            composable(
+                route = Screen.AcceptedOrder.route,
+                arguments = listOf(
+                    navArgument("totalPrice") { type = NavType.StringType }
+                ),
+                enterTransition = { fadeIn(animationSpec = tween(500)) },
+                exitTransition = { fadeOut(animationSpec = tween(500)) }
+            ) { backStackEntry ->
+                val totalPriceArg = backStackEntry.arguments?.getString("totalPrice")?.toDoubleOrNull() ?: 0.0
+                AcceptedOrderScreen(
+                    totalPrice = totalPriceArg,
+                    onBackToHome = { actions.navigateToMainScreen() }
+                )
             }
         }
     }
 }
-    class NavigationActions(private val navController: NavHostController) {
+class NavigationActions(private val navController: NavHostController) {
         fun navigateToHomeFromSplash() {
             navController.navigate(Screen.OnStart.route) {
                 popUpTo(Screen.Splash.route) { inclusive = true }
@@ -260,7 +290,10 @@ fun AppNavigation() {
             navController.navigate(Screen.Filter.createRoute(categoryName))
         }
 
-        fun navigateToMyCart() {
-            navController.navigate(Screen.MyCart.route)
+        fun navigateToOnAcceptedScreen(totalPrice: Double) {
+            navController.navigate(Screen.AcceptedOrder.createRoute(totalPrice)) {
+                popUpTo(0) { inclusive = true }
+            }
         }
-    }
+
+}

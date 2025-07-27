@@ -71,15 +71,7 @@ fun ProductItem(
                     .height(100.dp),
                 contentAlignment = Alignment.Center
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(product.imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = product.name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
-                )
+                SVGImage(data = product.imageUrl, contentDescription = product.description)
             }
             Text(
                 text = product.name,
@@ -118,7 +110,7 @@ fun ProductItem(
                         modifier = Modifier
                             .size(40.dp)
                             .background(
-                                color = if (isAdding) SuccessColor else MainThemeColor,
+                                color = MainThemeColor,
                                 shape = RoundedCornerShape(17.dp)
                             )
                     ) {
@@ -133,6 +125,19 @@ fun ProductItem(
         }
     }
 }
+
+    @Composable
+    fun SVGImage(data: String, contentDescription : String) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(data)
+                .crossfade(true)
+                .build(),
+            contentDescription = contentDescription,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 
 @Composable
 fun ProductsRow(
@@ -186,7 +191,9 @@ fun CollapsibleSection(
             Icon(
                 imageVector = AppIcons.RightArrow,
                 contentDescription = if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
-                modifier = Modifier.rotate(rotationValue).size(30.dp),
+                modifier = Modifier
+                    .rotate(rotationValue)
+                    .size(30.dp),
                 tint = Black
             )
         }
@@ -243,7 +250,9 @@ fun GeneralButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     @StringRes currentText: Int,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    containerColor : Color,
+    textColor : Color
 ) {
     Button(
         onClick = onClick,
@@ -253,14 +262,14 @@ fun GeneralButton(
             .height(60.dp),
         shape = RoundedCornerShape(15.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MainThemeColor,
-            disabledContainerColor = MainThemeColor.copy(alpha = 0.6f)
+            containerColor = containerColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.6f)
         )
     ) {
         Text(
             text = stringResource(currentText),
             style = AppTextStyles.ButtonText.copy(
-                color = if (enabled) White else White.copy(alpha = 0.7f)
+                color = if (enabled) textColor else textColor.copy(alpha = 0.7f),
             )
         )
     }

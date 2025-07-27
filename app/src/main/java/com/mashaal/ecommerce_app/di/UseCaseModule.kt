@@ -75,4 +75,10 @@ object UseCaseModule {
     fun provideGetCartTotalQuantityUseCase(cartRepository: CartRepository): GetCartTotalQuantityUseCase {
         return GetCartTotalQuantityUseCase(cartRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideRemoveAllFromCartUseCase(cartRepository: CartRepository) : RemoveAllFromCartUseCase{
+        return RemoveAllFromCartUseCase(cartRepository)
+    }
 }

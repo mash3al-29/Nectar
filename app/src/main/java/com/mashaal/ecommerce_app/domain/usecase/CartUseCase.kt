@@ -52,3 +52,11 @@ class GetCartTotalQuantityUseCase @Inject constructor(
         return cartRepository.getTotalQuantity()
     }
 }
+
+class RemoveAllFromCartUseCase @Inject constructor(
+    private val cartRepository: CartRepository
+){
+    suspend fun execute() {
+        cartRepository.removeAllFromCart()
+    }
+}

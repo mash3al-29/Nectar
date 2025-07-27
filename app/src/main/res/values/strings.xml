@@ -64,7 +64,13 @@
     <!-- Categories Screen -->
     <string name="find_products">Find Products</string>
     <string name="no_products_found_category">No products found for %1$s</string>
-    
+
+    <!-- Accepted order Screen -->
+    <string name="back_to_home"> Back to home</string>
+    <string name="items_placed">Your items has been placed and is on\nits way to being processed</string>
+    <string name="order_accepted">"Your Order has been accepted"</string>
+    <string name="total_price">Your total is %1$.2f</string>
+
     <!-- Share -->
     <string name="share_product">Share Product</string>
     <string name="share_product_text">Check out this amazing product: %1$s - $%2$.2f\n\nGet it from our grocery app!</string>

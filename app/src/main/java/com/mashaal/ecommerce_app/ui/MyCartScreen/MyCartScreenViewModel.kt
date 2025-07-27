@@ -3,6 +3,7 @@ package com.mashaal.ecommerce_app.ui.MyCartScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mashaal.ecommerce_app.domain.usecase.GetCartUseCase
+import com.mashaal.ecommerce_app.domain.usecase.RemoveAllFromCartUseCase
 import com.mashaal.ecommerce_app.domain.usecase.RemoveFromCartUseCase
 import com.mashaal.ecommerce_app.domain.usecase.UpdateCartQuantityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ class MyCartScreenViewModel @Inject constructor(
     private val getCartUseCase: GetCartUseCase,
     private val removeFromCartUseCase: RemoveFromCartUseCase,
     private val updateCartQuantityUseCase: UpdateCartQuantityUseCase,
+    private val removeAllFromCartUseCase: RemoveAllFromCartUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MyCartScreenState())
@@ -37,8 +39,20 @@ class MyCartScreenViewModel @Inject constructor(
                 removeItem(event.productId)
             }
             is MyCartScreenEvent.OnCheckoutClicked -> {
-                // to be implemented
+                removeAllFromCart()
                 println("Proceeding to checkout with total: $${state.value.totalPrice}")
+            }
+        }
+    }
+
+    private fun removeAllFromCart(){
+        viewModelScope.launch {
+            try {
+                removeAllFromCartUseCase.execute()
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(error = e.message ?: "Failed to remove item")
+                }
             }
         }
     }

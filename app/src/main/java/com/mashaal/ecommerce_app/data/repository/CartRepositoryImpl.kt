@@ -52,7 +52,11 @@ class CartRepositoryImpl @Inject constructor(
     override suspend fun removeFromCart(productId: Int) {
         cartDao.deleteCartItem(productId)
     }
-    
+
+    override suspend fun removeAllFromCart() {
+        cartDao.removeAllFromCart()
+    }
+
     override suspend fun updateQuantity(productId: Int, quantity: Int) {
         if (quantity <= 0) {
             cartDao.deleteCartItem(productId)
