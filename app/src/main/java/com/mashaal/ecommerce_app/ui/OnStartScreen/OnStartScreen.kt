@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.theme.GilroyMediumFont
 import com.mashaal.ecommerce_app.ui.theme.GilroyRegularFont
+import com.mashaal.ecommerce_app.ui.theme.White
 
 @Composable
 fun OnStartScreen(onNavigateToMainScreen: () -> Unit) {
@@ -45,7 +46,7 @@ fun OnStartScreen(onNavigateToMainScreen: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.carrot_logo),
+                    painter = painterResource(id = R.drawable.carrot),
                     contentDescription = "Carrot Logo",
                     modifier = Modifier
                         .width(150.dp)
@@ -59,7 +60,7 @@ fun OnStartScreen(onNavigateToMainScreen: () -> Unit) {
                     fontFamily = GilroyRegularFont,
                     fontSize = 48.sp,
                     lineHeight = 50.sp,
-                    color = Color.White,
+                    color = White,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 5.dp)
                 )

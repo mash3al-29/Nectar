@@ -2,7 +2,6 @@ package com.mashaal.ecommerce_app.ui.ProductScreen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,13 +12,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
+import android.content.Intent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,10 +23,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mashaal.ecommerce_app.R
-import com.mashaal.ecommerce_app.ui.Common.ProductComponents.AddToBasketButton
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.CollapsibleSection
-import com.mashaal.ecommerce_app.ui.Common.ProductComponents.QuantityButton
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.GeneralButton
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.QuantityPriceRow
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.SectionDivider
+import com.mashaal.ecommerce_app.ui.Common.LoadingState
+import com.mashaal.ecommerce_app.ui.Common.ErrorState
 import com.mashaal.ecommerce_app.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,12 +36,12 @@ import com.mashaal.ecommerce_app.ui.theme.*
 fun ProductScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
-    onAddToCartClick: () -> Unit,
     viewModel: ProductScreenViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val quantity = state.quantity
     val isFavorite = state.isFavorite
+    val context = LocalContext.current
     var productDetailExpanded by remember { mutableStateOf(false) }
     var nutritionExpanded by remember { mutableStateOf(false) }
     var reviewExpanded by remember { mutableStateOf(false) }
@@ -52,19 +50,10 @@ fun ProductScreen(
     val reviewRotation by animateFloatAsState(targetValue = if (reviewExpanded) 90f else 0f, label = "reviewRotation")
     val dividerColor = DividerColor
     if (state.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(color = colorResource(R.color.main_theme_color))
-        }
-        return
+        LoadingState()
     }
     if (state.error != null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = "Error: ${state.error}",
-                color = Red,
-                style = TextStyle(fontFamily = GilroyMediumFont, fontSize = 16.sp)
-            )
-        }
+        ErrorState(error = state.error)
         return
     }
     Scaffold(
@@ -79,13 +68,27 @@ fun ProductScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { // to be implemented
-                        }) {
+                    IconButton(onClick = { 
+                        state.product?.let { product ->
+                            val shareText = context.getString(
+                                R.string.share_product_text,
+                                product.name,
+                                product.price
+                            )
+                            val shareIntent = Intent().apply {
+                                action = Intent.ACTION_SEND
+                                putExtra(Intent.EXTRA_TEXT, shareText)
+                                type = "text/plain"
+                            }
+                            val chooser = Intent.createChooser(shareIntent, context.getString(R.string.share_product))
+                            context.startActivity(chooser)
+                        }
+                    }) {
                         Icon(AppIcons.Share, contentDescription = stringResource(R.string.share))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
+                    containerColor = White,
                 )
             )
         }
@@ -95,13 +98,13 @@ fun ProductScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(White)
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
-                    .background(Color.White),
+                    .background(White),
                 contentAlignment = Alignment.Center
             ) {
                     state.product?.let { product ->
@@ -114,7 +117,7 @@ fun ProductScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(bottomStart = 35.dp, bottomEnd = 35.dp))
-                                .background(Color.White),
+                                .background(White),
                             contentScale = ContentScale.Crop
                         )
 
@@ -124,7 +127,7 @@ fun ProductScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 25.dp)
-                    .background(Color.White)
+                    .background(White)
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(
@@ -137,7 +140,7 @@ fun ProductScreen(
                             text = productItem.name,
                             fontFamily = GilroyBoldFont,
                             fontSize = 24.sp,
-                            color = Color.Black
+                            color = Black
                         )
                     }
                     IconButton(
@@ -145,12 +148,12 @@ fun ProductScreen(
                         modifier = Modifier
                             .size(48.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White)
+                            .background(White)
                     ){
                         Icon(
                             imageVector = if (isFavorite) AppIcons.FavoriteFilled else AppIcons.FavoriteOutlined,
                             contentDescription = stringResource(R.string.favorite),
-                            tint = if (isFavorite) Red else Gray
+                            tint = if (isFavorite) ErrorColor else Gray
                         )
                     }
                 }
@@ -163,55 +166,21 @@ fun ProductScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(30.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        QuantityButton(
-                            text = "−",
-                            backgroundColor = Color.White,
-                            contentColor = Gray,
-                            onClick = {
-                                if (quantity > 1) {
-                                    viewModel.onEvent(ProductScreenEvent.OnQuantityChanged(quantity - 1))
-                                }
-                            }
-                        )
-                        Text(
-                            text = "$quantity",
-                            fontFamily = GilroyBoldFont,
-                            fontSize = 18.sp,
-                            modifier = Modifier
-                                .width(50.dp)
-                                .border(width = 1.dp, color = LightGray, shape = RoundedCornerShape(15.dp))
-                                .padding(vertical = 12.dp, horizontal = 15.dp),
-                            textAlign = TextAlign.Center
-                        )
-                        QuantityButton(
-                            text = "+",
-                            backgroundColor = Color.White,
-                            contentColor = colorResource(R.color.main_theme_color),
-                            onClick = {
-                                if (quantity < 99) {
-                                    viewModel.onEvent(ProductScreenEvent.OnQuantityChanged(quantity + 1))
-                                }
-                            }
-                        )
-                    }
-                    Column {
-                        Text(
-                            text = "$${state.totalPrice}",
-                            fontFamily = GilroyBoldFont,
-                            fontSize = 24.sp,
-                            color = Color.Black
-                        )
-                    }
-                }
+                QuantityPriceRow(
+                    quantity = quantity,
+                    price = "$${state.totalPrice}",
+                    onQuantityDecrease = {
+                        if (quantity > 1) {
+                            viewModel.onEvent(ProductScreenEvent.OnQuantityChanged(quantity - 1))
+                        }
+                    },
+                    onQuantityIncrease = {
+                        if (quantity < 99) {
+                            viewModel.onEvent(ProductScreenEvent.OnQuantityChanged(quantity + 1))
+                        }
+                    },
+                    priceFontSize = 24
+                )
                 Spacer(modifier = Modifier.height(24.dp))
                 SectionDivider(dividerColor)
                 CollapsibleSection(
@@ -240,7 +209,7 @@ fun ProductScreen(
                 ) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        colors = CardDefaults.cardColors(containerColor = White),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Column(modifier = Modifier.padding(vertical = 16.dp)) {
@@ -292,11 +261,15 @@ fun ProductScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                AddToBasketButton(
+                GeneralButton(
                     onClick = { 
                         viewModel.onEvent(ProductScreenEvent.OnAddToCartClicked)
-                        onAddToCartClick()
-                    }
+                    },
+                    currentText = when {
+                        state.addToCartSuccess -> R.string.added_to_cart
+                        else -> R.string.add_to_basket
+                    },
+                    enabled = state.product != null
                 )
                 Spacer(modifier = Modifier.height(24.dp))
             }

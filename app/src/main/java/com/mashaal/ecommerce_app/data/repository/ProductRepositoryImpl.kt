@@ -42,4 +42,8 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): List<Product> {
         return productDao.getProductsByCategoryPriceAndDetail(category, minPrice, maxPrice, detail).map { it.toDomainModel() }
     }
+    
+    override suspend fun searchProducts(query: String): List<Product> {
+        return productDao.searchProducts(query).map { it.toDomainModel() }
+    }
 }

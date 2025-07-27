@@ -9,11 +9,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.mashaal.ecommerce_app.domain.usecase.GetProductByIdUseCase
+import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductScreenViewModel @Inject constructor(
-    private val getProductByIdUseCase: GetProductByIdUseCase
+    private val getProductByIdUseCase: GetProductByIdUseCase,
+    private val addToCartUseCase: AddToCartUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(ProductScreenState())
     val state: StateFlow<ProductScreenState> = _state.asStateFlow()
@@ -27,7 +30,7 @@ class ProductScreenViewModel @Inject constructor(
                 _state.update { it.copy(isFavorite = !it.isFavorite) }
             }
             is ProductScreenEvent.OnAddToCartClicked -> {
-                // to be implemented
+                addToCart()
             }
         }
     }
@@ -53,6 +56,31 @@ class ProductScreenViewModel @Inject constructor(
                     isLoading = false,
                     error = e.message ?: "Unknown error occurred"
                 ) }
+            }
+        }
+    }
+    
+    private fun addToCart() {
+        val currentState = _state.value
+        val product = currentState.product
+        if (product != null) {
+            viewModelScope.launch {
+                try {
+                    addToCartUseCase.execute(
+                        productId = product.id,
+                        quantity = currentState.quantity,
+                        portion = product.detail
+                    )
+                    _state.update { it.copy(
+                        addToCartSuccess = true
+                    ) }
+                    delay(2000)
+                    _state.update { it.copy(addToCartSuccess = false) }
+                } catch (e: Exception) {
+                    _state.update { it.copy(
+                        error = e.message ?: "Failed to add to cart"
+                    ) }
+                }
             }
         }
     }

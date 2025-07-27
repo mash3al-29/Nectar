@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,10 +16,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mashaal.ecommerce_app.R
+import com.mashaal.ecommerce_app.ui.theme.AppIcons
+import com.mashaal.ecommerce_app.ui.theme.BakeryBorderColor
+import com.mashaal.ecommerce_app.ui.theme.BakeryCardColor
+import com.mashaal.ecommerce_app.ui.theme.BeveragesBorderColor
+import com.mashaal.ecommerce_app.ui.theme.BeveragesCardColor
+import com.mashaal.ecommerce_app.ui.theme.CookingOilBorderColor
+import com.mashaal.ecommerce_app.ui.theme.CookingOilCardColor
+import com.mashaal.ecommerce_app.ui.theme.DairyBorderColor
+import com.mashaal.ecommerce_app.ui.theme.DairyCardColor
+import com.mashaal.ecommerce_app.ui.theme.FruitsBorderColor
+import com.mashaal.ecommerce_app.ui.theme.FruitsCardColor
 import com.mashaal.ecommerce_app.ui.theme.GilroyBoldFont
+import com.mashaal.ecommerce_app.ui.theme.MainThemeColor
+import com.mashaal.ecommerce_app.ui.theme.MeatBorderColor
+import com.mashaal.ecommerce_app.ui.theme.MeatCardColor
+import com.mashaal.ecommerce_app.ui.theme.UnknownCategoryBorderColor
+import com.mashaal.ecommerce_app.ui.theme.UnknownCategoryCardColor
+import com.mashaal.ecommerce_app.ui.theme.White
 
 object CategoriesComponents {
 
@@ -71,32 +90,32 @@ fun CategoryItem(
 fun getCategoryColors(category: String): Pair<Color, Color> {
     return when (category) {
         "Fresh Fruits & Vegetable" -> Pair(
-            Color.hsl(142f, 0.38f, 0.51f, 0.1f),
-            Color.hsl(142f, 0.38f, 0.51f, 0.7f)
+            FruitsCardColor,
+            FruitsBorderColor
         )
         "Cooking Oil & Ghee" -> Pair(
-            Color.hsl(31f, 0.92f, 0.64f, 0.1f),
-            Color.hsl(31f, 0.92f, 0.64f, 0.7f)
+            CookingOilCardColor,
+            CookingOilBorderColor
         )
         "Meat & Fish" -> Pair(
-            Color.hsl(11f, 0.86f, 0.77f, 0.25f),
-            Color.hsl(11f, 0.86f, 0.77f, 1f)
+            MeatCardColor,
+            MeatBorderColor
         )
         "Bakery & Snacks" -> Pair(
-            Color.hsl(284f, 0.44f, 0.78f, 0.25f),
-            Color.hsl(284f, 0.44f, 0.78f, 1f)
+            BakeryCardColor,
+            BakeryBorderColor
         )
         "Dairy & Eggs" -> Pair(
-            Color.hsl(46f, 0.96f, 0.79f, 0.25f),
-            Color.hsl(46f, 0.96f, 0.79f, 1f)
+            DairyCardColor,
+            DairyBorderColor
         )
         "Beverages" -> Pair(
-            Color.hsl(201f, 0.76f, 0.84f, 0.25f),
-            Color.hsl(201f, 0.76f, 0.84f, 1f)
+            BeveragesCardColor,
+            BeveragesBorderColor
         )
         else -> Pair(
-            Color.hsl(201f, 0.76f, 0.84f, 0.25f),
-            Color.hsl(201f, 0.76f, 0.84f, 1f)
+            UnknownCategoryCardColor,
+            UnknownCategoryBorderColor
         )
     }
 }
@@ -112,5 +131,39 @@ private fun getCategoryImageResource(category: String): Int {
         else -> R.drawable.category1
     }
 }
+
+    @Composable
+    fun RoundedCheckbox(
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        checkedColor: Color = MainThemeColor,
+        borderColor: Color = Color.Gray,
+        cornerRadius: Dp = 8.dp,
+        size: Dp = 24.dp
+    ) {
+        Box(
+            modifier = modifier
+                .size(size)
+                .clip(RoundedCornerShape(cornerRadius))
+                .background(if (checked) checkedColor else Color.Transparent)
+                .border(
+                    width = 2.dp,
+                    color = if (checked) checkedColor else borderColor,
+                    shape = RoundedCornerShape(cornerRadius)
+                )
+                .clickable { onCheckedChange(!checked) },
+            contentAlignment = Alignment.Center
+        ) {
+            if (checked) {
+                Icon(
+                    imageVector = AppIcons.Check,
+                    contentDescription = "Checked",
+                    tint = White,
+                    modifier = Modifier.size(size * 0.6f)
+                )
+            }
+        }
+    }
 
 }
