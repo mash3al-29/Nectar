@@ -178,7 +178,9 @@ fun FilterScreen(
                         onApplyFilter(state.selectedPriceRange, state.selectedProductPortions)
                     },
                     currentText = R.string.apply_filter,
-                    modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 15.dp)
+                    modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
+                    containerColor = MainThemeColor,
+                    textColor = White
                 )
             }
         }

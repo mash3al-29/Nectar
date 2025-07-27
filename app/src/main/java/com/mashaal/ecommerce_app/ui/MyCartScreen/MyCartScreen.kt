@@ -10,25 +10,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.QuantityPriceRow
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.SectionDivider
 import com.mashaal.ecommerce_app.ui.Common.EmptyState
+import com.mashaal.ecommerce_app.ui.Common.ProductComponents.SVGImage
 import com.mashaal.ecommerce_app.ui.theme.*
 import java.util.Locale
 
 @Composable
 fun MyCartScreen(
-    viewModel: MyCartScreenViewModel = hiltViewModel()
+    viewModel: MyCartScreenViewModel = hiltViewModel(),
+        navigateToOnAcceptedScreen: (Double) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Scaffold(
@@ -90,7 +88,10 @@ fun MyCartScreen(
                     modifier = Modifier.padding(horizontal = 25.dp)
                 ) {
                     Button(
-                        onClick = { viewModel.onEvent(MyCartScreenEvent.OnCheckoutClicked) },
+                        onClick = {
+                            viewModel.onEvent(MyCartScreenEvent.OnCheckoutClicked)
+                            navigateToOnAcceptedScreen(state.totalPrice)
+                                  },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(60.dp),
@@ -146,15 +147,7 @@ fun CartItemRow(
                 modifier = Modifier.size(70.dp),
                 contentAlignment = Alignment.Center
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(cartItem.product.imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = cartItem.product.name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxSize()
-                )
+                SVGImage(data = cartItem.product.imageUrl, contentDescription = cartItem.product.description)
             }
             
             Column(
