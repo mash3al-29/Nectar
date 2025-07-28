@@ -10,29 +10,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import com.mashaal.ecommerce_app.R
-import com.mashaal.ecommerce_app.ui.theme.Black
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.asComposeRenderEffect
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.GeneralButton
-import com.mashaal.ecommerce_app.ui.theme.SearchTextColor
-import com.mashaal.ecommerce_app.ui.theme.Typography
-
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
+import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
@@ -44,50 +41,50 @@ fun AcceptedOrderScreen(onBackToHome: () -> Unit, totalPrice: Double,) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = MaterialTheme.appDimensions.paddingLarge),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                Modifier.padding(end = 30.dp)
+                Modifier.padding(end = MaterialTheme.appDimensions.paddingLarge)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.accepted_order_image),
-                    contentDescription = "Accepted Order Image",
+                    contentDescription = stringResource(R.string.accepted_order_image),
                     modifier = Modifier
-                        .width(350.dp)
-                        .height(350.dp)
+                        .width(MaterialTheme.appDimensions.acceptedOrderImageSize)
+                        .height(MaterialTheme.appDimensions.acceptedOrderImageSize)
                 )
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingLarge))
             Text(
                 text = stringResource(R.string.order_accepted),
-                style = Typography.bodyLarge.copy(fontSize = 28.sp),
-                color = Black,
+                style = MaterialTheme.appTextStyles.orderAcceptedTitle(),
+                color = MaterialTheme.appColors.black,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingMedium))
             Text(
                 text = stringResource(R.string.items_placed),
-                style = Typography.bodySmall.copy(fontSize = 16.sp),
-                color = SearchTextColor,
+                style = MaterialTheme.appTextStyles.orderAcceptedSubtitle(),
+                color = MaterialTheme.appColors.searchTextColor,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingMedium))
             Text(
                 text = stringResource(R.string.total_price, totalPrice),
-                style = Typography.titleMedium.copy(fontSize = 18.sp),
-                color = Black,
+                style = MaterialTheme.appTextStyles.orderAcceptedPrice(),
+                color = MaterialTheme.appColors.black,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingSmall))
             GeneralButton(
                 onClick = {
                     onBackToHome()
                 },
                 currentText = R.string.back_to_home,
-                containerColor = Color.Transparent,
-                textColor = Black
+                containerColor = MaterialTheme.appColors.transparent,
+                textColor = MaterialTheme.appColors.black
             )
         }
     }
@@ -97,22 +94,32 @@ fun AcceptedOrderScreen(onBackToHome: () -> Unit, totalPrice: Double,) {
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun BlurredBackground(modifier: Modifier = Modifier) {
+    val blurRadius = MaterialTheme.appDimensions.blurEffectRadius
+    val gradientTop = MaterialTheme.appColors.gradientTop
+    val gradientMiddle = MaterialTheme.appColors.gradientMiddle
+    val gradientBottom = MaterialTheme.appColors.gradientBottom
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .graphicsLayer {
                 renderEffect = RenderEffect
-                    .createBlurEffect(30f, 30f, Shader.TileMode.CLAMP)
+                    .createBlurEffect(
+                        blurRadius,
+                        blurRadius,
+                        Shader.TileMode.CLAMP
+                    )
                     .asComposeRenderEffect()
             }
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFFFE5E5),
-                        Color(0xFFE5FFF3),
-                        Color(0xFFE5F0FF)
+                        gradientTop,
+                        gradientMiddle,
+                        gradientBottom
                     )
                 )
             )
     )
 }
+

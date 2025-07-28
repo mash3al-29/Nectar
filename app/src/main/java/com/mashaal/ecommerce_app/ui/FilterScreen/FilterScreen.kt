@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,19 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.Common.CategoriesComponents.RoundedCheckbox
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.GeneralButton
+import com.mashaal.ecommerce_app.ui.Common.LoadingState
+import com.mashaal.ecommerce_app.ui.Common.ErrorState
 import com.mashaal.ecommerce_app.ui.theme.AppIcons
-import com.mashaal.ecommerce_app.ui.theme.Black
-import com.mashaal.ecommerce_app.ui.theme.BottomSheetBackgroundColor
-import com.mashaal.ecommerce_app.ui.theme.GilroyBoldFont
-import com.mashaal.ecommerce_app.ui.theme.GilroyMediumFont
-import com.mashaal.ecommerce_app.ui.theme.MainThemeColor
-import com.mashaal.ecommerce_app.ui.theme.White
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
+import com.mashaal.ecommerce_app.ui.theme.appShapes
+import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 @Composable
 fun FilterScreen(
@@ -39,53 +36,53 @@ fun FilterScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = White
+        containerColor = MaterialTheme.appColors.white
     ){ paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+        if (state.isLoading) {
+            LoadingState()
+        } else if (state.error != null) {
+            ErrorState(error = state.error)
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(White)
-                    .padding(start = 8.dp, end = 8.dp, bottom = 32.dp)
+                    .background(MaterialTheme.appColors.white)
+                    .padding(start = MaterialTheme.appDimensions.paddingSmall, end = MaterialTheme.appDimensions.paddingSmall, bottom = MaterialTheme.appDimensions.spacingLarge)
             ) {
                 Icon(
                     imageVector = AppIcons.Close,
-                    contentDescription = "Close",
+                    contentDescription = stringResource(R.string.close),
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(MaterialTheme.appDimensions.iconSizeMedium)
                         .align(Alignment.CenterStart)
                         .clickable { onBackClick() },
-                    tint = Black
+                    tint = MaterialTheme.appColors.black
                 )
                 Text(
                     text = stringResource(R.string.filters),
-                    fontFamily = GilroyBoldFont,
-                    fontSize = 20.sp,
+                    style = MaterialTheme.appTextStyles.screenTitle(),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center),
-                    color = Black
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                    .background(BottomSheetBackgroundColor)
+                    .clip(MaterialTheme.appShapes.card)
+                    .background(MaterialTheme.appColors.bottomSheetBackgroundColor)
                     .verticalScroll(scrollState)
             ) {
                 Text(
                     text = stringResource(R.string.price_range),
-                    fontFamily = GilroyMediumFont,
-                    fontSize = 18.sp,
-                    color = Black,
-                    modifier = Modifier.padding(vertical = 24.dp, horizontal = 24.dp)
+                    style = MaterialTheme.appTextStyles.sectionHeader(),
+                    modifier = Modifier.padding(vertical = MaterialTheme.appDimensions.paddingLarge, horizontal = MaterialTheme.appDimensions.paddingLarge)
                 )
-
                 val priceRanges = listOf(
                     stringResource(R.string.price_under_2),
                     stringResource(R.string.price_2_to_4),
@@ -101,7 +98,7 @@ fun FilterScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp, horizontal = 24.dp)
+                            .padding(top = MaterialTheme.appDimensions.paddingMedium, start = MaterialTheme.appDimensions.paddingMedium, end = MaterialTheme.appDimensions.paddingMedium)
                             .selectable(
                                 selected = isSelected,
                                 onClick = {
@@ -118,39 +115,33 @@ fun FilterScreen(
                                 viewModel.onEvent(FilterScreenEvent.OnPriceRangeSelected(newPriceRange))
                             }
                         )
-
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(MaterialTheme.appDimensions.spacingSmall))
                         Text(
                             text = priceRange,
-                            fontFamily = GilroyMediumFont,
-                            fontSize = 16.sp,
-                            color = if (isSelected) MainThemeColor else Black,
-                            modifier = Modifier.padding(start = 10.dp)
+                            style = MaterialTheme.appTextStyles.productDetail(),
+                            color = if (isSelected) MaterialTheme.appColors.primary else MaterialTheme.appColors.black,
+                            modifier = Modifier.padding(start = MaterialTheme.appDimensions.spacingSmall)
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
                 }
-                Spacer(modifier = Modifier.height(25.dp))
-
+                Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingMedium))
                 Text(
                     text = stringResource(R.string.product_portion),
-                    fontFamily = GilroyMediumFont,
-                    fontSize = 18.sp,
-                    color = Black,
-                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 24.dp)
+                    style = MaterialTheme.appTextStyles.sectionHeader(),
+                    modifier = Modifier.padding(vertical = MaterialTheme.appDimensions.paddingMedium, horizontal = MaterialTheme.appDimensions.paddingLarge)
                 )
-
-                state.productPortions.forEach { detail ->
-                    val isSelected = state.selectedProductPortions.contains(detail)
+                state.productPortionsResIds.forEach { resId ->
+                    val portionText = stringResource(resId)
+                    val isSelected = state.selectedProductPortions.contains(portionText)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 10.dp, horizontal = 24.dp)
+                            .padding(top = MaterialTheme.appDimensions.paddingMedium, start = MaterialTheme.appDimensions.paddingMedium, end = MaterialTheme.appDimensions.paddingMedium)
                             .selectable(
                                 selected = isSelected,
                                 onClick = {
                                     val newSelected = !isSelected
-                                    viewModel.onEvent(FilterScreenEvent.OnProductPortionSelected(detail, newSelected))
+                                    viewModel.onEvent(FilterScreenEvent.OnProductPortionSelected(portionText, newSelected))
                                 }
                             ),
                         verticalAlignment = Alignment.CenterVertically
@@ -158,31 +149,31 @@ fun FilterScreen(
                         RoundedCheckbox(
                             checked = isSelected,
                             onCheckedChange = { checked ->
-                                viewModel.onEvent(FilterScreenEvent.OnProductPortionSelected(detail, checked))
+                                viewModel.onEvent(FilterScreenEvent.OnProductPortionSelected(portionText, checked))
                             }
                         )
-                        Spacer(modifier = Modifier.width(10.dp))
+                        Spacer(modifier = Modifier.width(MaterialTheme.appDimensions.spacingSmall))
                         Text(
-                            text = detail,
-                            fontFamily = GilroyMediumFont,
-                            fontSize = 16.sp,
-                            color = if (isSelected) MainThemeColor else Black,
-                            modifier = Modifier.padding(start = 10.dp)
+                            text = portionText,
+                            style = MaterialTheme.appTextStyles.productDetail(),
+                            color = if (isSelected) MaterialTheme.appColors.primary else MaterialTheme.appColors.black,
+                            modifier = Modifier.padding(start = MaterialTheme.appDimensions.spacingSmall)
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingSmall))
                 }
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingLarge))
                 GeneralButton(
                     onClick = {
                         onApplyFilter(state.selectedPriceRange, state.selectedProductPortions)
                     },
                     currentText = R.string.apply_filter,
-                    modifier = Modifier.padding(start = 15.dp, end = 15.dp, bottom = 15.dp),
-                    containerColor = MainThemeColor,
-                    textColor = White
+                    modifier = Modifier.padding(start = MaterialTheme.appDimensions.paddingMedium, end = MaterialTheme.appDimensions.paddingMedium, bottom = MaterialTheme.appDimensions.paddingMedium),
+                    containerColor = MaterialTheme.appColors.primary,
+                    textColor = MaterialTheme.appColors.white
                 )
             }
         }
     }
+}
 }

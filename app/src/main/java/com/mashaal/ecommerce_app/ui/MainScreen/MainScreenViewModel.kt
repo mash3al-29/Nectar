@@ -2,6 +2,9 @@ package com.mashaal.ecommerce_app.ui.MainScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mashaal.ecommerce_app.domain.extensions.groceries
+import com.mashaal.ecommerce_app.domain.extensions.isBestSelling
+import com.mashaal.ecommerce_app.domain.extensions.isExclusiveOffer
 import com.mashaal.ecommerce_app.domain.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +15,7 @@ import kotlinx.coroutines.launch
 import com.mashaal.ecommerce_app.domain.usecase.GetAllProductsUseCase
 import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
 import com.mashaal.ecommerce_app.domain.usecase.SearchProductsUseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
 import javax.inject.Inject
 
@@ -23,9 +27,13 @@ class MainScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainScreenState())
     val state: StateFlow<MainScreenState> = _state.asStateFlow()
+
+    private var hasInitialDataLoaded = false
+    
     init {
-        loadData()
+        loadDataIfNeeded()
     }
+    
     fun onEvent(event: MainScreenEvent) {
         when (event) {
             is MainScreenEvent.OnSearchQueryChange -> {
@@ -50,21 +58,35 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    private fun loadDataIfNeeded() {
+        if (!hasInitialDataLoaded) {
+            loadData()
+        } else {
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
     private fun loadData() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
+            delay(500)
                 getAllProductsUseCase.execute().catch { e ->
                     _state.update { it.copy(
                         isLoading = false,
                         error = e.message ?: "Unknown error occurred"
                     )}
                 }.collect { productsList ->
+                    val exclusiveOffers = productsList.filter { it.isExclusiveOffer }
+                    val bestSelling = productsList.filter { it.isBestSelling }
+                    val groceries = productsList.filter { it.groceries }
+
                     _state.update { it.copy(
-                        exclusiveOffers = productsList,
-                        bestSelling = productsList.shuffled(),
-                        groceries = productsList.shuffled(),
+                        exclusiveOffers = exclusiveOffers,
+                        bestSelling = bestSelling,
+                        groceries = groceries,
                         isLoading = false
                     )}
+                    hasInitialDataLoaded = true
                 }
         }
     }

@@ -8,11 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.domain.model.Product
-import com.mashaal.ecommerce_app.ui.theme.Gray
+import com.mashaal.ecommerce_app.ui.theme.appColors
 
 @Composable
 fun SearchResultsContent(
@@ -29,7 +28,7 @@ fun SearchResultsContent(
                 modifier = modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = colorResource(R.color.main_theme_color))
+                CircularProgressIndicator(color = MaterialTheme.appColors.primary)
             }
         }
         searchResults.isEmpty() -> {
@@ -40,7 +39,7 @@ fun SearchResultsContent(
                 Text(
                     text = stringResource(R.string.no_products_found, searchQuery),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Gray
+                    color = MaterialTheme.appColors.gray
                 )
             }
         }
@@ -53,4 +52,4 @@ fun SearchResultsContent(
             )
         }
     }
-} 
+}

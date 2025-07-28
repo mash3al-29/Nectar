@@ -43,15 +43,32 @@ fun BottomBarController(
 class NavigationActionsBottomBar(private val navController: NavHostController) {
     fun navigateToHomeScreen(){
         navController.navigate(Screen.Main.route) {
-            popUpTo(Screen.Main.route) { inclusive = true }
+            popUpTo(Screen.Main.route) { 
+                inclusive = false
+                saveState = true 
+            }
+            launchSingleTop = true
+            restoreState = true
         }
     }
 
     fun navigateToCategoriesScreen(){
-            navController.navigate(Screen.Categories.route)
+        navController.navigate(Screen.Categories.route) {
+            popUpTo(Screen.Main.route) { 
+                saveState = true 
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
     }
 
     fun navigateToMyCartScreen(){
-        navController.navigate(Screen.MyCart.route)
+        navController.navigate(Screen.MyCart.route) {
+            popUpTo(Screen.Main.route) { 
+                saveState = true 
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
     }
 }

@@ -1,10 +1,26 @@
 package com.mashaal.ecommerce_app.ui.FilterScreen
 
+import com.mashaal.ecommerce_app.R
+
 data class FilterScreenState(
     val categoryName: String = "",
-    val productPortions: List<String> = listOf("1kg", "1L", "500g", "300g", "400g", "1pc", "150g", "12pcs", "250g", "25 bags", "500ml"),
+    val productPortionsResIds: List<Int> = listOf(
+        R.string.portion_1kg,
+        R.string.portion_1L,
+        R.string.portion_500g,
+        R.string.portion_300g,
+        R.string.portion_400g,
+        R.string.portion_1pc,
+        R.string.portion_150g,
+        R.string.portion_12pcs,
+        R.string.portion_250g,
+        R.string.portion_25_bags,
+        R.string.portion_500ml
+    ),
     val selectedPriceRange: String? = null,
-    val selectedProductPortions: Set<String> = emptySet()
+    val selectedProductPortions: Set<String> = emptySet(),
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
 sealed class FilterScreenEvent {

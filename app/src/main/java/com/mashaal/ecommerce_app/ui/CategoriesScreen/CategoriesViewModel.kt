@@ -6,6 +6,7 @@ import com.mashaal.ecommerce_app.domain.usecase.GetAllCategoriesUseCase
 import com.mashaal.ecommerce_app.domain.usecase.SearchProductsUseCase
 import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,8 +23,10 @@ class CategoriesViewModel @Inject constructor(
     private val _state = MutableStateFlow(CategoriesState())
     val state: StateFlow<CategoriesState> = _state.asStateFlow()
 
+    private var hasInitialDataLoaded = false
+
     init {
-        loadCategories()
+        loadCategoriesIfNeeded()
     }
 
     fun onEvent(event: CategoriesEvent) {
@@ -41,14 +44,25 @@ class CategoriesViewModel @Inject constructor(
         }
     }
 
+    private fun loadCategoriesIfNeeded() {
+        if (!hasInitialDataLoaded) {
+            loadCategories()
+        } else {
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
     private fun loadCategories() {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            delay(500)
             try {
                 val categories = getAllCategoriesUseCase.execute()
                 _state.update { it.copy(
                     categories = categories,
                     isLoading = false
                 ) }
+                hasInitialDataLoaded = true
             } catch (e: Exception) {
                 _state.update { it.copy(
                     isLoading = false,

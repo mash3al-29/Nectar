@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +34,10 @@ import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreenViewModel
 import com.mashaal.ecommerce_app.ui.MainScreen.MainScreenViewModel
 import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreen
 import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreenViewModel
-import com.mashaal.ecommerce_app.ui.theme.White
+import com.mashaal.ecommerce_app.ui.SeeAllScreen.SeeAllScreen
+import com.mashaal.ecommerce_app.ui.SeeAllScreen.SeeAllSectionType
+import com.mashaal.ecommerce_app.ui.SeeAllScreen.SeeAllViewModel
+import com.mashaal.ecommerce_app.ui.theme.appColors
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")
@@ -56,7 +60,10 @@ sealed class Screen(val route: String) {
     object AcceptedOrder : Screen("accepted_order/{totalPrice}") {
         fun createRoute(totalPrice: Double) = "accepted_order/$totalPrice"
     }
-
+    
+    object SeeAll : Screen("see_all/{sectionType}") {
+        fun createRoute(sectionType: String) = "see_all/$sectionType"
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -71,8 +78,8 @@ fun AppNavigation() {
         bottomBar = {
             BottomBarController(currentRoute, navController)
         },
-        containerColor = White,
-        contentColor = White
+        containerColor = MaterialTheme.appColors.white,
+        contentColor = MaterialTheme.appColors.white
     ) { paddingValues ->
         NavHost(
             navController = navController,
@@ -123,6 +130,9 @@ fun AppNavigation() {
                     viewModel = viewModel,
                     onProductClick = { product ->
                         actions.navigateToProductDetail(product.id)
+                    },
+                    onSeeAllClick = { sectionType ->
+                        actions.navigateToSeeAll(sectionType)
                     }
                 )
             }
@@ -262,6 +272,27 @@ fun AppNavigation() {
                     onBackToHome = { actions.navigateToMainScreen() }
                 )
             }
+            
+            composable(
+                route = Screen.SeeAll.route,
+                arguments = listOf(
+                    navArgument("sectionType") { type = NavType.StringType }
+                ),
+                enterTransition = { fadeIn(animationSpec = tween(500)) },
+                exitTransition = { fadeOut(animationSpec = tween(500)) }
+            ) { backStackEntry ->
+                val sectionTypeArg = backStackEntry.arguments?.getString("sectionType") ?: ""
+                val sectionType = SeeAllSectionType.valueOf(sectionTypeArg)
+                val viewModel = hiltViewModel<SeeAllViewModel>()
+                SeeAllScreen(
+                    sectionType = sectionType,
+                    onBackClick = { navController.popBackStack() },
+                    onProductClick = { product ->
+                        actions.navigateToProductDetail(product.id)
+                    },
+                    viewModel = viewModel
+                )
+            }
         }
     }
 }
@@ -295,5 +326,8 @@ class NavigationActions(private val navController: NavHostController) {
                 popUpTo(0) { inclusive = true }
             }
         }
-
+        
+        fun navigateToSeeAll(sectionType: SeeAllSectionType) {
+            navController.navigate(Screen.SeeAll.createRoute(sectionType.name))
+        }
 }

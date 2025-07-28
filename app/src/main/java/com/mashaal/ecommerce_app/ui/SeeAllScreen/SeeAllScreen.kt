@@ -1,4 +1,4 @@
-package com.mashaal.ecommerce_app.ui.CategorySelectedScreen
+package com.mashaal.ecommerce_app.ui.SeeAllScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.domain.model.Product
 import com.mashaal.ecommerce_app.ui.Common.EmptyState
 import com.mashaal.ecommerce_app.ui.Common.ErrorState
@@ -17,36 +18,26 @@ import com.mashaal.ecommerce_app.ui.Common.ProductsGrid
 import com.mashaal.ecommerce_app.ui.theme.AppIcons
 import com.mashaal.ecommerce_app.ui.theme.appColors
 import com.mashaal.ecommerce_app.ui.theme.appDimensions
-import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 @Composable
-fun CategorySelectedScreen(
-    categoryName: String,
+fun SeeAllScreen(
+    sectionType: SeeAllSectionType,
     onBackClick: () -> Unit,
     onProductClick: (Product) -> Unit,
-    navigateToFilter: (String) -> Unit,
-    filterResults: Pair<String?, Set<String>>? = null,
-    viewModel: CategorySelectedViewModel = hiltViewModel()
+    viewModel: SeeAllViewModel = hiltViewModel()
 ) {
-    LaunchedEffect(categoryName) {
-        viewModel.loadProductsByCategory(categoryName)
-    }
-    
-    LaunchedEffect(filterResults) {
-        if (filterResults != null) {
-            viewModel.applyFilterResults(filterResults.first, filterResults.second)
-        }
+    LaunchedEffect(sectionType) {
+        viewModel.loadProducts(sectionType)
     }
     
     val state by viewModel.state.collectAsStateWithLifecycle()
     
     Scaffold(
         topBar = {
-            CategoryTopBar(
-                title = state.categoryName,
-                onBackClick = onBackClick,
-                onFilterClick = { navigateToFilter(state.categoryName) }
+            SeeAllTopBar(
+                title = stringResource(sectionType.titleResId),
+                onBackClick = onBackClick
             )
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -61,19 +52,19 @@ fun CategorySelectedScreen(
         ) {
             if (state.isLoading) {
                 LoadingState()
-            } else if (state.error != null) {
+            } else if (state.error.isNotBlank()) {
                 ErrorState(state.error)
             } else {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     if (state.products.isEmpty()) {
-                        EmptyState(stringResource(R.string.no_products_found_category, state.categoryName))
+                        EmptyState(stringResource(sectionType.emptyStateResId))
                     } else {
                         ProductsGrid(
-                            products = state.filteredProducts.ifEmpty { state.products },
+                            products = state.products,
                             onProductClick = onProductClick,
-                            onAddToCartClick = { product -> viewModel.onEvent(CategorySelectedEvent.OnAddToCartClicked(product)) }
+                            onAddToCartClick = { product -> viewModel.onEvent(SeeAllEvent.OnAddToCartClicked(product)) }
                         )
                     }
                 }
@@ -83,10 +74,9 @@ fun CategorySelectedScreen(
 }
 
 @Composable
-fun CategoryTopBar(
+fun SeeAllTopBar(
     title: String,
-    onBackClick: () -> Unit,
-    onFilterClick: () -> Unit
+    onBackClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -106,23 +96,10 @@ fun CategoryTopBar(
                 tint = MaterialTheme.appColors.black,
             )
         }
-        
         Text(
             text = title,
             style = MaterialTheme.appTextStyles.screenTitle(),
         )
-        
-        IconButton(
-            onClick = onFilterClick,
-            modifier = Modifier.size(MaterialTheme.appDimensions.iconSize)
-        ) {
-            Icon(
-                modifier = Modifier.size(MaterialTheme.appDimensions.iconSizeLarge),
-                imageVector = AppIcons.Filter,
-                contentDescription = stringResource(R.string.filter),
-                tint = MaterialTheme.appColors.black
-            )
-        }
+        Box(modifier = Modifier.size(MaterialTheme.appDimensions.iconSize))
     }
 }
-

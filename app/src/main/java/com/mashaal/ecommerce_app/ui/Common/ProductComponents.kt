@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,14 +24,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.domain.model.Product
-import com.mashaal.ecommerce_app.ui.theme.*
+import com.mashaal.ecommerce_app.ui.theme.AppIcons
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
+import com.mashaal.ecommerce_app.ui.theme.appShapes
+import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.border
 
 object ProductComponents {
 @Composable
@@ -51,39 +53,39 @@ fun ProductItem(
         }
     }
     Card(
+        shape = MaterialTheme.appShapes.card,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.appColors.cardBackground),
+        border = BorderStroke(width = MaterialTheme.appDimensions.borderWidth, color = MaterialTheme.appColors.lightGray),
         modifier = modifier
-            .width(175.dp)
-            .height(250.dp)
+            .width(MaterialTheme.appDimensions.productCardWidth)
+            .height(MaterialTheme.appDimensions.productCardHeight)
             .clickable { onProductClick(product) },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = CardBackgroundColor),
-        border = BorderStroke(width = 1.dp, color = LightGray)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(MaterialTheme.appDimensions.spacingSmall),
             horizontalAlignment = Alignment.Start
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp),
+                    .height(MaterialTheme.appDimensions.productImageHeight),
                 contentAlignment = Alignment.Center
             ) {
                 SVGImage(data = product.imageUrl, contentDescription = product.description)
             }
             Text(
                 text = product.name,
-                style = AppTextStyles.ProductName,
+                style = MaterialTheme.appTextStyles.productName(),
                 maxLines = 1,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = MaterialTheme.appDimensions.spacingSmall)
             )
             Text(
                 text = product.detail,
-                style = AppTextStyles.ProductDetail,
+                style = MaterialTheme.appTextStyles.productDetail(),
                 maxLines = 1,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = MaterialTheme.appDimensions.spacingExtraSmall)
             )
             Spacer(modifier = Modifier.weight(1f))
             Row(
@@ -93,13 +95,13 @@ fun ProductItem(
             ) {
                 Text(
                     text = "$${product.price}",
-                    style = AppTextStyles.Price
+                    style = MaterialTheme.appTextStyles.price()
                 )
                 Box(
                     modifier = Modifier
                         .padding(
-                            bottom = 8.dp,
-                            end = 8.dp
+                            bottom = MaterialTheme.appDimensions.spacingSmall,
+                            end = MaterialTheme.appDimensions.spacingSmall
                         )
                 ) {
                     IconButton(
@@ -108,16 +110,16 @@ fun ProductItem(
                             onAddToCartClick(product)
                         },
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(MaterialTheme.appDimensions.iconButtonSize)
                             .background(
-                                color = MainThemeColor,
-                                shape = RoundedCornerShape(17.dp)
+                                color = MaterialTheme.appColors.primary,
+                                shape = MaterialTheme.appShapes.iconButton
                             )
                     ) {
                         Icon(
                             imageVector = if (isAdding) AppIcons.Check else AppIcons.Add,
                             contentDescription = stringResource(R.string.add_to_basket),
-                            tint = White
+                            tint = MaterialTheme.appColors.white
                         )
                     }
                 }
@@ -148,8 +150,8 @@ fun ProductsRow(
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(horizontal = MaterialTheme.appDimensions.paddingMedium),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.paddingMedium)
     ) {
         items(products) { product ->
             ProductItem(
@@ -177,24 +179,22 @@ fun CollapsibleSection(
     ) {
         Text(
             text = title,
-            fontFamily = GilroyBoldFont,
-            fontSize = 18.sp,
-            color = Black
+            style = MaterialTheme.appTextStyles.sectionHeader()
         )
         IconButton(
             onClick = onToggle,
             modifier = Modifier
-                .size(width = 30.dp, height = 30.dp)
+                .size(MaterialTheme.appDimensions.iconSize)
+                .background(MaterialTheme.appColors.white)
                 .clip(CircleShape)
-                .background(White)
         ) {
             Icon(
                 imageVector = AppIcons.RightArrow,
                 contentDescription = if (isExpanded) stringResource(R.string.collapse) else stringResource(R.string.expand),
                 modifier = Modifier
                     .rotate(rotationValue)
-                    .size(30.dp),
-                tint = Black
+                    .size(MaterialTheme.appDimensions.iconSize),
+                tint = MaterialTheme.appColors.black
             )
         }
     }
@@ -204,8 +204,8 @@ fun CollapsibleSection(
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        Column(modifier = Modifier.padding(horizontal = 25.dp)) {
-            Spacer(modifier = Modifier.height(8.dp))
+        Column(modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.paddingLarge)) {
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingSmall))
             content()
         }
     }
@@ -216,22 +216,36 @@ fun QuantityButton(
     text: String,
     backgroundColor: Color,
     contentColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    myCartRedirection: Boolean
 ) {
-    Box(
+    Card(
+        shape = MaterialTheme.appShapes.quantityButton,
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        border = if (myCartRedirection) BorderStroke(
+            width = MaterialTheme.appDimensions.borderWidth,
+            color = MaterialTheme.appColors.cartDividerColor
+        ) else null,
         modifier = Modifier
-            .size(50.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .background(backgroundColor)
+            .size(MaterialTheme.appDimensions.quantityButtonSize)
             .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            style = AppTextStyles.QuantityButton.copy(color = contentColor),
-            textAlign = TextAlign.Center
-        )
-    }
+        content = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(MaterialTheme.appDimensions.quantityButtonContentPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.appTextStyles.quantityButton().copy(color = contentColor),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    modifier = Modifier.wrapContentSize()
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -239,8 +253,8 @@ fun SectionDivider(dividerColor: Color) {
     HorizontalDivider(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        thickness = 1.dp,
+            .padding(bottom = MaterialTheme.appDimensions.paddingMedium),
+        thickness = MaterialTheme.appDimensions.dividerThickness,
         color = dividerColor
     )
 }
@@ -259,8 +273,8 @@ fun GeneralButton(
         enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp),
-        shape = RoundedCornerShape(15.dp),
+            .height(MaterialTheme.appDimensions.buttonHeight),
+        shape = MaterialTheme.appShapes.button,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             disabledContainerColor = containerColor.copy(alpha = 0.6f)
@@ -268,7 +282,7 @@ fun GeneralButton(
     ) {
         Text(
             text = stringResource(currentText),
-            style = AppTextStyles.ButtonText.copy(
+            style = MaterialTheme.appTextStyles.buttonText().copy(
                 color = if (enabled) textColor else textColor.copy(alpha = 0.7f),
             )
         )
@@ -282,7 +296,8 @@ fun QuantityPriceRow(
     onQuantityDecrease: () -> Unit,
     onQuantityIncrease: () -> Unit,
     modifier: Modifier = Modifier,
-    priceFontSize: Int = 18
+    priceFontSize: Int = 18,
+    myCartRedirection: Boolean
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -291,37 +306,50 @@ fun QuantityPriceRow(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingSmall)
         ) {
             QuantityButton(
                 text = "−",
-                backgroundColor = White,
-                contentColor = Gray,
-                onClick = onQuantityDecrease
+                backgroundColor = MaterialTheme.appColors.white,
+                contentColor = MaterialTheme.appColors.gray,
+                onClick = onQuantityDecrease,
+                myCartRedirection = myCartRedirection
             )
-            Text(
-                text = "$quantity",
-                style = AppTextStyles.QuantityText,
-                modifier = Modifier
-                    .width(50.dp)
-                    .background(
-                        White,
-                        RoundedCornerShape(15.dp)
-                    )
-                    .padding(vertical = 12.dp),
-                textAlign = TextAlign.Center
-            )
+            Box(
+                modifier = Modifier.border(if (!myCartRedirection) BorderStroke(
+                    width = MaterialTheme.appDimensions.borderWidth,
+                    color = MaterialTheme.appColors.cartDividerColor,
+                ) else BorderStroke(
+                    width = MaterialTheme.appDimensions.borderWidth,
+                    color = MaterialTheme.appColors.white,
+                    ), shape = MaterialTheme.appShapes.quantityButton,)
+                    .fillMaxHeight(),
+            ) {
+                Text(
+                    text = quantity.toString(),
+                    style = MaterialTheme.appTextStyles.quantityText(),
+                    modifier = Modifier
+                        .width(MaterialTheme.appDimensions.quantityTextSize)
+                        .background(
+                            MaterialTheme.appColors.white,
+                            MaterialTheme.appShapes.quantityButtonText
+                        )
+                        .padding(vertical = MaterialTheme.appDimensions.paddingSmallInBetween),
+                    textAlign = TextAlign.Center
+                )
+            }
             QuantityButton(
                 text = "+",
-                backgroundColor = White,
-                contentColor = MainThemeColor,
-                onClick = onQuantityIncrease
+                backgroundColor = MaterialTheme.appColors.white,
+                contentColor = MaterialTheme.appColors.primary,
+                onClick = onQuantityIncrease,
+                myCartRedirection = myCartRedirection
             )
         }
         
         Text(
             text = price,
-            style = if (priceFontSize == 24) AppTextStyles.LargePrice else AppTextStyles.PriceDetail,
+            style = if (priceFontSize == 24) MaterialTheme.appTextStyles.largePrice() else MaterialTheme.appTextStyles.priceDetail(),
             maxLines = 1
         )
     }

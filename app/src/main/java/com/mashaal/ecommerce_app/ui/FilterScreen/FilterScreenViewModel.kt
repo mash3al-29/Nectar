@@ -29,7 +29,7 @@ class FilterScreenViewModel @Inject constructor(
     fun onEvent(event: FilterScreenEvent) {
         when (event) {
             is FilterScreenEvent.OnPriceRangeSelected -> {
-                _state.update { it.copy(selectedPriceRange = event.priceRange) }
+                _state.update { it.copy(selectedPriceRange = event.priceRange, error = null, isLoading = false) }
             }
             is FilterScreenEvent.OnProductPortionSelected -> {
                 val currentDetails = _state.value.selectedProductPortions.toMutableSet()
@@ -38,7 +38,7 @@ class FilterScreenViewModel @Inject constructor(
                 } else {
                     currentDetails.remove(event.portion)
                 }
-                _state.update { it.copy(selectedProductPortions = currentDetails) }
+                _state.update { it.copy(selectedProductPortions = currentDetails, error = null, isLoading = false) }
             }
         }
     }

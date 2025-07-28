@@ -1,5 +1,6 @@
 package com.mashaal.ecommerce_app.ui.MainScreen
 
+import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.domain.model.Product
 
 data class MainScreenState(
@@ -7,13 +8,13 @@ data class MainScreenState(
     val bestSelling: List<Product> = emptyList(),
     val groceries: List<Product> = emptyList(),
     val searchResults: List<Product> = emptyList(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val isSearching: Boolean = false,
     val error: String = "",
     val searchQuery: String = "",
     val selectedCategory: String? = null,
-    val location: String = "Alexandria, Egypt",
-    val selectedTabIndex: Int = 0
+    val locationResId: Int = R.string.default_location,
+    val selectedTabIndex: Int = 0,
 ) {
     val isSearchActive: Boolean
         get() = searchQuery.isNotBlank()

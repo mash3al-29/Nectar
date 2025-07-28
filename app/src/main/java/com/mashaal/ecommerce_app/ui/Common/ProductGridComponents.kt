@@ -4,11 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.mashaal.ecommerce_app.domain.model.Product
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.ProductItem
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
 
 @Composable
 fun ProductsGrid(
@@ -20,12 +21,12 @@ fun ProductsGrid(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
-            start = 25.dp,
-            end = 25.dp,
-            bottom = 25.dp
+            start = MaterialTheme.appDimensions.paddingLarge,
+            end = MaterialTheme.appDimensions.paddingLarge,
+            bottom = MaterialTheme.appDimensions.paddingLarge
         ),
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        verticalArrangement = Arrangement.spacedBy(15.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingMedium),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingMedium),
         modifier = modifier.fillMaxSize()
     ) {
         items(products) { product ->
@@ -36,4 +37,4 @@ fun ProductsGrid(
             )
         }
     }
-} 
+}

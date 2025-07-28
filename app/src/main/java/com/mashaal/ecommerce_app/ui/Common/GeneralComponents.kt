@@ -4,23 +4,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.theme.*
 
@@ -29,41 +28,50 @@ import com.mashaal.ecommerce_app.ui.theme.*
 fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    focusManager: FocusManager,
+    keyboardController: SoftwareKeyboardController
+
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .background(SearchBackgroundColor)
-            .padding(horizontal = 16.dp),
+            .height(MaterialTheme.appDimensions.searchBarHeight)
+            .clip(MaterialTheme.appShapes.searchBar)
+            .background(MaterialTheme.appColors.searchBackgroundColor)
+            .padding(horizontal = MaterialTheme.appDimensions.paddingMedium),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = AppIcons.Search,
                 contentDescription = stringResource(R.string.search_store),
-                tint = Black,
-                modifier = Modifier.size(20.dp)
+                tint = MaterialTheme.appColors.black,
+                modifier = Modifier.size(MaterialTheme.appDimensions.iconSizeSmall)
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.appDimensions.spacingSmall))
             Box(modifier = Modifier.weight(1f)) {
                 if (query.isEmpty()) {
                     Text(
                         text = stringResource(R.string.search_store),
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp, letterSpacing = 0.sp),
-                        color = SearchTextColor
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.appColors.searchTextColor
                     )
                 }
                 BasicTextField(
                     value = query,
                     onValueChange = onQueryChange,
                     modifier = Modifier.fillMaxWidth(),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            focusManager.clearFocus()
+                            keyboardController.hide()
+                        }
+                    ),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Search
+                        imeAction = ImeAction.Search,
                     ),
                 )
             }
@@ -92,15 +100,15 @@ fun BottomNavBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding(),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        color = White,
-        tonalElevation = 8.dp,
-        shadowElevation = 8.dp
+        shape = MaterialTheme.appShapes.bottomNav,
+        color = MaterialTheme.appColors.white,
+        tonalElevation = MaterialTheme.appDimensions.elevationLarge,
+        shadowElevation = MaterialTheme.appDimensions.elevationLarge
     ) {
         NavigationBar(
-            containerColor = Color.Transparent,
+            containerColor = MaterialTheme.appColors.transparent,
             tonalElevation = 0.dp,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = MaterialTheme.appDimensions.spacingSmall)
         ) {
             items.forEachIndexed { index, item ->
                 NavigationBarItem(
@@ -113,9 +121,7 @@ fun BottomNavBar(
                     label = {
                         Text(
                             text = stringResource(item.titleResId),
-                            fontFamily = GilroyMediumFont,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.appTextStyles.navigationLabel()
                         )
                     },
                     selected = selectedItem == index,
@@ -128,11 +134,11 @@ fun BottomNavBar(
                         }
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MainThemeColor,
-                        selectedTextColor = MainThemeColor,
-                        indicatorColor = White,
-                        unselectedIconColor = Black,
-                        unselectedTextColor = Black
+                        selectedIconColor = MaterialTheme.appColors.primary,
+        selectedTextColor = MaterialTheme.appColors.primary,
+                        indicatorColor = MaterialTheme.appColors.white,
+                        unselectedIconColor = MaterialTheme.appColors.black,
+                        unselectedTextColor = MaterialTheme.appColors.black
                     )
                 )
             }
@@ -155,10 +161,10 @@ fun SeeAllButton(
 ) {
     Text(
         text = stringResource(R.string.see_all),
-        style = AppTextStyles.SeeAllLink,
+        style = MaterialTheme.appTextStyles.seeAllLink(),
         textAlign = TextAlign.End,
         modifier = modifier
             .clickable { onClick() }
-            .padding(vertical = 4.dp)
+            .padding(vertical = MaterialTheme.appDimensions.spacingExtraSmall)
     )
 }

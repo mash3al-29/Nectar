@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -16,10 +16,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.mashaal.ecommerce_app.R
-import com.mashaal.ecommerce_app.ui.theme.Gray
-import com.mashaal.ecommerce_app.ui.theme.MainThemeColor
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
+import com.mashaal.ecommerce_app.ui.theme.appShapes
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -46,8 +46,8 @@ fun BannerCarousel(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .height(MaterialTheme.appDimensions.bannerHeight)
+                .clip(MaterialTheme.appShapes.card)
         ) { page ->
             Image(
                 painter = painterResource(id = bannerImages[page]),
@@ -59,18 +59,21 @@ fun BannerCarousel(
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                .padding(bottom = MaterialTheme.appDimensions.paddingMedium),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingSmall)
         ) {
             repeat(bannerImages.size) { index ->
                 val isSelected = pagerState.currentPage == index
                 Box(
                     modifier = Modifier
-                        .size(width = if (isSelected) 24.dp else 8.dp, height = 8.dp)
+                        .size(
+                            width = if (isSelected) MaterialTheme.appDimensions.indicatorWidthLarge else MaterialTheme.appDimensions.indicatorWidthSmall, 
+                            height = MaterialTheme.appDimensions.indicatorHeight
+                        )
                         .clip(CircleShape)
                         .background(
-                            if (isSelected) MainThemeColor
-                            else Gray.copy(alpha = 0.5f)
+                            if (isSelected) MaterialTheme.appColors.primary
+                            else MaterialTheme.appColors.gray.copy(alpha = 0.5f)
                         )
                 )
             }

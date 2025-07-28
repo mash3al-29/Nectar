@@ -26,8 +26,10 @@ class MyCartScreenViewModel @Inject constructor(
     private val _state = MutableStateFlow(MyCartScreenState())
     val state: StateFlow<MyCartScreenState> = _state.asStateFlow()
 
+    private var hasInitialDataLoaded = false
+
     init {
-        loadCart()
+        loadCartIfNeeded()
     }
 
     fun onEvent(event: MyCartScreenEvent) {
@@ -45,10 +47,16 @@ class MyCartScreenViewModel @Inject constructor(
         }
     }
 
+    fun refreshCart() {
+        hasInitialDataLoaded = false
+        loadCartIfNeeded()
+    }
+
     private fun removeAllFromCart(){
         viewModelScope.launch {
             try {
                 removeAllFromCartUseCase.execute()
+                hasInitialDataLoaded = false
             } catch (e: Exception) {
                 _state.update {
                     it.copy(error = e.message ?: "Failed to remove item")
@@ -57,9 +65,16 @@ class MyCartScreenViewModel @Inject constructor(
         }
     }
 
+    private fun loadCartIfNeeded() {
+        if (!hasInitialDataLoaded) {
+            loadCart()
+        } else {
+            _state.update { it.copy(isLoading = false) }
+        }
+    }
+
     private fun loadCart() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
             getCartUseCase.execute()
                 .catch { error ->
                     _state.update { 
@@ -78,6 +93,7 @@ class MyCartScreenViewModel @Inject constructor(
                             error = null
                         )
                     }
+                    hasInitialDataLoaded = true
                 }
         }
     }
@@ -86,6 +102,7 @@ class MyCartScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 updateCartQuantityUseCase.execute(productId, quantity)
+                refreshCart()
             } catch (e: Exception) {
                 _state.update { 
                     it.copy(error = e.message ?: "Failed to update quantity")
@@ -98,6 +115,7 @@ class MyCartScreenViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 removeFromCartUseCase.execute(productId)
+                refreshCart()
             } catch (e: Exception) {
                 _state.update { 
                     it.copy(error = e.message ?: "Failed to remove item")

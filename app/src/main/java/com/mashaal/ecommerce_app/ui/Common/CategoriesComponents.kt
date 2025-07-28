@@ -5,8 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,27 +17,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.theme.AppIcons
-import com.mashaal.ecommerce_app.ui.theme.BakeryBorderColor
-import com.mashaal.ecommerce_app.ui.theme.BakeryCardColor
-import com.mashaal.ecommerce_app.ui.theme.BeveragesBorderColor
-import com.mashaal.ecommerce_app.ui.theme.BeveragesCardColor
-import com.mashaal.ecommerce_app.ui.theme.CookingOilBorderColor
-import com.mashaal.ecommerce_app.ui.theme.CookingOilCardColor
-import com.mashaal.ecommerce_app.ui.theme.DairyBorderColor
-import com.mashaal.ecommerce_app.ui.theme.DairyCardColor
-import com.mashaal.ecommerce_app.ui.theme.FruitsBorderColor
-import com.mashaal.ecommerce_app.ui.theme.FruitsCardColor
-import com.mashaal.ecommerce_app.ui.theme.GilroyBoldFont
-import com.mashaal.ecommerce_app.ui.theme.MainThemeColor
-import com.mashaal.ecommerce_app.ui.theme.MeatBorderColor
-import com.mashaal.ecommerce_app.ui.theme.MeatCardColor
-import com.mashaal.ecommerce_app.ui.theme.UnknownCategoryBorderColor
-import com.mashaal.ecommerce_app.ui.theme.UnknownCategoryCardColor
-import com.mashaal.ecommerce_app.ui.theme.White
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
+import com.mashaal.ecommerce_app.ui.theme.appShapes
+import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 object CategoriesComponents {
 
@@ -50,10 +35,10 @@ fun CategoryItem(
 ) {
     Box(
         modifier = Modifier
-            .size(width = 220.dp, height = 170.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .size(width = MaterialTheme.appDimensions.categoryCardWidth, height = MaterialTheme.appDimensions.categoryCardHeight)
+            .clip(MaterialTheme.appShapes.card)
             .background(backgroundColor)
-            .border(1.dp, borderColor, RoundedCornerShape(18.dp))
+            .border(MaterialTheme.appDimensions.borderWidth, borderColor, MaterialTheme.appShapes.card)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -66,20 +51,17 @@ fun CategoryItem(
                 contentDescription = category,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .size(width = 111.dp, height = 75.dp)
-                    .padding(bottom = 16.dp)
+                    .size(width = MaterialTheme.appDimensions.categoryImageWidth, height = MaterialTheme.appDimensions.categoryImageHeight)
+                    .padding(bottom = MaterialTheme.appDimensions.paddingMedium)
             )
             Text(
                 text = category,
-                fontFamily = GilroyBoldFont,
-                fontSize = 16.sp,
-                lineHeight = 22.sp,
-                letterSpacing = 0.1.sp,
+                style = MaterialTheme.appTextStyles.productName(),
                 textAlign = TextAlign.Center,
-                color = Color(0xFF181B19),
+                color = MaterialTheme.appColors.black,
                 modifier = Modifier
-                    .width(93.dp)
-                    .height(44.dp)
+                    .width(MaterialTheme.appDimensions.categoryTextWidth)
+                    .height(MaterialTheme.appDimensions.categoryTextHeight)
             )
         }
     }
@@ -88,34 +70,35 @@ fun CategoryItem(
 
 @Composable
 fun getCategoryColors(category: String): Pair<Color, Color> {
+    val colors = MaterialTheme.appColors
     return when (category) {
         "Fresh Fruits & Vegetable" -> Pair(
-            FruitsCardColor,
-            FruitsBorderColor
+            colors.fruitsCardColor,
+            colors.fruitsBorderColor
         )
         "Cooking Oil & Ghee" -> Pair(
-            CookingOilCardColor,
-            CookingOilBorderColor
+            colors.cookingOilCardColor,
+            colors.cookingOilBorderColor
         )
         "Meat & Fish" -> Pair(
-            MeatCardColor,
-            MeatBorderColor
+            colors.meatCardColor,
+            colors.meatBorderColor
         )
         "Bakery & Snacks" -> Pair(
-            BakeryCardColor,
-            BakeryBorderColor
+            colors.bakeryCardColor,
+            colors.bakeryBorderColor
         )
         "Dairy & Eggs" -> Pair(
-            DairyCardColor,
-            DairyBorderColor
+            colors.dairyCardColor,
+            colors.dairyBorderColor
         )
         "Beverages" -> Pair(
-            BeveragesCardColor,
-            BeveragesBorderColor
+            colors.beveragesCardColor,
+            colors.beveragesBorderColor
         )
         else -> Pair(
-            UnknownCategoryCardColor,
-            UnknownCategoryBorderColor
+            colors.unknownCategoryCardColor,
+            colors.unknownCategoryBorderColor
         )
     }
 }
@@ -137,20 +120,19 @@ private fun getCategoryImageResource(category: String): Int {
         checked: Boolean,
         onCheckedChange: (Boolean) -> Unit,
         modifier: Modifier = Modifier,
-        checkedColor: Color = MainThemeColor,
-        borderColor: Color = Color.Gray,
-        cornerRadius: Dp = 8.dp,
-        size: Dp = 24.dp
+        checkedColor: Color = MaterialTheme.appColors.primary,
+        borderColor: Color = MaterialTheme.appColors.gray,
+        size: Dp = MaterialTheme.appDimensions.iconSize
     ) {
         Box(
             modifier = modifier
                 .size(size)
-                .clip(RoundedCornerShape(cornerRadius))
-                .background(if (checked) checkedColor else Color.Transparent)
+                .clip(MaterialTheme.appShapes.checkbox)
+                .background(if (checked) checkedColor else MaterialTheme.appColors.transparent)
                 .border(
-                    width = 2.dp,
+                    width = MaterialTheme.appDimensions.borderWidthMedium,
                     color = if (checked) checkedColor else borderColor,
-                    shape = RoundedCornerShape(cornerRadius)
+                    shape = MaterialTheme.appShapes.checkbox
                 )
                 .clickable { onCheckedChange(!checked) },
             contentAlignment = Alignment.Center
@@ -159,7 +141,7 @@ private fun getCategoryImageResource(category: String): Int {
                 Icon(
                     imageVector = AppIcons.Check,
                     contentDescription = "Checked",
-                    tint = White,
+                    tint = MaterialTheme.appColors.white,
                     modifier = Modifier.size(size * 0.6f)
                 )
             }

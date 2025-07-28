@@ -32,6 +32,12 @@ class ProductScreenViewModel @Inject constructor(
             is ProductScreenEvent.OnAddToCartClicked -> {
                 addToCart()
             }
+            is ProductScreenEvent.OnShareClicked -> {
+                shareProduct()
+            }
+            is ProductScreenEvent.OnShareConsumed -> {
+                _state.update { it.copy(shareData = null) }
+            }
         }
     }
     
@@ -82,6 +88,18 @@ class ProductScreenViewModel @Inject constructor(
                     ) }
                 }
             }
+        }
+    }
+
+    private fun shareProduct() {
+        val currentState = _state.value
+        val product = currentState.product
+        if (product != null) {
+            val shareData = ShareData(
+                title = "Share Product",
+                text = "Check out this product: ${product.name} for $${product.price}"
+            )
+            _state.update { it.copy(shareData = shareData) }
         }
     }
 }

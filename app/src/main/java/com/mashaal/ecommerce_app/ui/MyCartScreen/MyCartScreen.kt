@@ -5,22 +5,26 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.QuantityPriceRow
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.SectionDivider
 import com.mashaal.ecommerce_app.ui.Common.EmptyState
+import com.mashaal.ecommerce_app.ui.Common.ErrorState
+import com.mashaal.ecommerce_app.ui.Common.LoadingState
 import com.mashaal.ecommerce_app.ui.Common.ProductComponents.SVGImage
-import com.mashaal.ecommerce_app.ui.theme.*
+import com.mashaal.ecommerce_app.ui.theme.AppIcons
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appDimensions
+import com.mashaal.ecommerce_app.ui.theme.appShapes
+import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 import java.util.Locale
 
 @Composable
@@ -31,44 +35,48 @@ fun MyCartScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        containerColor = White,
-        contentColor = White,
+        containerColor = MaterialTheme.appColors.white,
+        contentColor = MaterialTheme.appColors.white,
         ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(White)
+                .background(MaterialTheme.appColors.white)
                 .padding(paddingValues)
-                .padding(top = 50.dp)
+                .padding(top = MaterialTheme.appDimensions.spacingExtraLarge)
         ) {
             Column(
                 modifier = Modifier.padding(
-                    bottom = 30.dp
+                    bottom = MaterialTheme.appDimensions.spacingLarge
                 )
             ) {
                 Text(
                     text = stringResource(R.string.my_cart),
-                    style = AppTextStyles.ScreenTitle,
+                    style = MaterialTheme.appTextStyles.screenTitle(),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
                 HorizontalDivider(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    thickness = 1.dp,
-                    color = CartDividerColor
+                        .padding(top = MaterialTheme.appDimensions.paddingMedium),
+                    thickness = MaterialTheme.appDimensions.dividerThickness,
+                    color = MaterialTheme.appColors.cartDividerColor
                 )
             }
 
-            if (state.cartItems.isEmpty()) {
+            if (state.isLoading) {
+                LoadingState()
+            } else if (state.error != null && state.error!!.isNotBlank()) {
+                ErrorState(error = state.error!!)
+            } else if (state.cartItems.isEmpty()) {
                 EmptyState(message = stringResource(R.string.cart_empty))
             } else {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(
-                        start = 25.dp,
-                        end = 25.dp,
+                        start = MaterialTheme.appDimensions.paddingExtraLarge,
+                        end = MaterialTheme.appDimensions.paddingExtraLarge,
                     )
                 ) {
                     items(state.cartItems) { cartItem ->
@@ -85,7 +93,7 @@ fun MyCartScreen(
                 }
 
                 Column(
-                    modifier = Modifier.padding(horizontal = 25.dp)
+                    modifier = Modifier.padding(start = MaterialTheme.appDimensions.paddingExtraLarge, end = MaterialTheme.appDimensions.paddingExtraLarge, bottom = MaterialTheme.appDimensions.spacingMedium),
                 ) {
                     Button(
                         onClick = {
@@ -94,9 +102,9 @@ fun MyCartScreen(
                                   },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp),
-                        shape = RoundedCornerShape(15.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MainThemeColor)
+                            .height(MaterialTheme.appDimensions.buttonHeight),
+                        shape = MaterialTheme.appShapes.button,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.appColors.primary)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -105,22 +113,22 @@ fun MyCartScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.go_to_checkout),
-                                style = AppTextStyles.ButtonText
+                                style = MaterialTheme.appTextStyles.buttonText()
                             )
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        CheckoutButtonColor,
-                                        RoundedCornerShape(4.dp)
+                                        MaterialTheme.appColors.checkoutButtonColor,
+                                        MaterialTheme.appShapes.cardSmall
                                     )
                                     .padding(
-                                        horizontal = 8.dp,
-                                        vertical = 4.dp
+                                        horizontal = MaterialTheme.appDimensions.paddingSmall,
+                                        vertical = MaterialTheme.appDimensions.paddingExtraSmall
                                     )
                             ) {
                                 Text(
                                     text = "$${String.format(Locale.US, "%.2f", state.totalPrice)}",
-                                    style = AppTextStyles.SmallButtonText
+                                    style = MaterialTheme.appTextStyles.smallButtonText()
                                 )
                             }
                         }
@@ -144,16 +152,16 @@ fun CartItemRow(
             verticalAlignment = Alignment.Top
         ) {
             Box(
-                modifier = Modifier.size(70.dp),
+                modifier = Modifier.size(MaterialTheme.appDimensions.myCartProductImageHeight),
                 contentAlignment = Alignment.Center
             ) {
                 SVGImage(data = cartItem.product.imageUrl, contentDescription = cartItem.product.description)
             }
-            
+
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 24.dp)
+                    .padding(start = MaterialTheme.appDimensions.paddingLarge)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -165,25 +173,25 @@ fun CartItemRow(
                     ) {
                         Text(
                             text = cartItem.product.name,
-                            style = AppTextStyles.CartItemName
+                            style = MaterialTheme.appTextStyles.cartItemName()
                         )
                         Text(
                             text = cartItem.portion,
-                            style = AppTextStyles.CartItemPortion,
-                            modifier = Modifier.padding(top = 5.dp)
+                            style = MaterialTheme.appTextStyles.cartItemPortion(),
+                            modifier = Modifier.padding(top = MaterialTheme.appDimensions.paddingExtraSmall)
                         )
                     }
-                    
+
                     Icon(
                         imageVector = AppIcons.Close,
                         contentDescription = stringResource(R.string.remove_item),
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(MaterialTheme.appDimensions.iconSizeMedium)
                             .clickable { onRemoveItem() },
-                        tint = RemoveIconColor
+                        tint = MaterialTheme.appColors.removeIconColor
                     )
                 }
-                
+
                 QuantityPriceRow(
                     quantity = cartItem.quantity,
                     price = "$${String.format(Locale.US,"%.2f", cartItem.totalPrice)}",
@@ -197,18 +205,19 @@ fun CartItemRow(
                             onQuantityChanged(cartItem.quantity + 1)
                         }
                     },
-                    modifier = Modifier.padding(top = 12.dp)
+                    modifier = Modifier.padding(top = MaterialTheme.appDimensions.paddingMedium),
+                    myCartRedirection = true
                 )
             }
         }
         Box(
             modifier = Modifier.padding(
-                start = 24.dp,
-                end = 24.dp,
-                top = 16.dp
+                start = MaterialTheme.appDimensions.paddingLarge,
+                end = MaterialTheme.appDimensions.paddingLarge,
+                top = MaterialTheme.appDimensions.paddingMedium
             )
         ) {
-            SectionDivider(CartDividerColor)
+            SectionDivider(MaterialTheme.appColors.cartDividerColor)
         }
     }
-} 
+}

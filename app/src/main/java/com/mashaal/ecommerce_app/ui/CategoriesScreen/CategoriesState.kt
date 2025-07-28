@@ -7,7 +7,7 @@ data class CategoriesState(
     val searchResults: List<Product> = emptyList(),
     val searchQuery: String = "",
     val selectedCategory: String? = null,
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val isSearching: Boolean = false,
     val error: String? = null
 ) {

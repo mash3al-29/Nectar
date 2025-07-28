@@ -4,11 +4,17 @@
     <string name="welcome_text">Welcome to our store</string>
     <string name="welcome_subtext">Get your groceries in as fast as one hour</string>
     <string name="welcome_button_text">Get Started</string>
+    <string name="delivery_background_desc">Delivery giving groceries to customer</string>
+    
+    <!-- Splash Screen -->
+    <string name="carrot_logo_desc">Carrot Logo</string>
+    <string name="nectar_logo_desc">Nectar Logo</string>
     
     <!-- MainScreen -->
     <string name="carrot_icon">Carrot Icon</string>
     <string name="location_icon">Location Icon</string>
     <string name="search_store">Search store</string>
+    <string name="default_location">Alexandria, Egypt</string>
     <string name="banner_image">Banner Image %1$d</string>
     <string name="exclusive_offer">Exclusive Offer</string>
     <string name="see_all">See all</string>
@@ -27,6 +33,7 @@
     <string name="back">Back</string>
     <string name="share">Share</string>
     <string name="favorite">Favorite</string>
+    <string name="filter">Filter</string>
     <string name="product_detail">Product Detail</string>
     <string name="nutrition">Nutrition</string>
     <string name="review">Review</string>
@@ -40,6 +47,20 @@
     <string name="filters">Filters</string>
     <string name="price_range">Price Range</string>
     <string name="product_portion">Product Portion</string>
+    <string name="close">Close</string>
+    
+    <!-- Product Portions -->
+    <string name="portion_1kg">1kg</string>
+    <string name="portion_1L">1L</string>
+    <string name="portion_500g">500g</string>
+    <string name="portion_300g">300g</string>
+    <string name="portion_400g">400g</string>
+    <string name="portion_1pc">1pc</string>
+    <string name="portion_150g">150g</string>
+    <string name="portion_12pcs">12pcs</string>
+    <string name="portion_250g">250g</string>
+    <string name="portion_25_bags">25 bags</string>
+    <string name="portion_500ml">500ml</string>
     
     <!-- Cart Screen -->
     <string name="my_cart">My Cart</string>
@@ -70,6 +91,7 @@
     <string name="items_placed">Your items has been placed and is on\nits way to being processed</string>
     <string name="order_accepted">"Your Order has been accepted"</string>
     <string name="total_price">Your total is %1$.2f</string>
+    <string name="accepted_order_image">Accepted Order Image</string>
 
     <!-- Share -->
     <string name="share_product">Share Product</string>

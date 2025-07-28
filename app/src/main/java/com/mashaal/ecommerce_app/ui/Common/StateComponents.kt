@@ -8,13 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import com.mashaal.ecommerce_app.R
-import com.mashaal.ecommerce_app.ui.theme.ErrorColor
-import com.mashaal.ecommerce_app.ui.theme.GilroyMediumFont
+import com.mashaal.ecommerce_app.ui.theme.appColors
+import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 @Composable
 fun LoadingState(modifier: Modifier = Modifier) {
@@ -22,7 +19,7 @@ fun LoadingState(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        CircularProgressIndicator(color = colorResource(R.color.main_theme_color))
+        CircularProgressIndicator(color = MaterialTheme.appColors.primary)
     }
 }
 
@@ -40,8 +37,7 @@ fun ErrorState(
                 R.string.error_prefix,
                 error ?: stringResource(R.string.unknown_error)
             ),
-            color = ErrorColor,
-            style = TextStyle(fontFamily = GilroyMediumFont, fontSize = 16.sp)
+            style = MaterialTheme.appTextStyles.errorText()
         )
     }
 }
@@ -57,8 +53,7 @@ fun EmptyState(
     ) {
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyLarge,
-            color = com.mashaal.ecommerce_app.ui.theme.Gray
+            style = MaterialTheme.appTextStyles.emptyStateText()
         )
     }
-} 
+}

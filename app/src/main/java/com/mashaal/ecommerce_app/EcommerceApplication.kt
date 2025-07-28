@@ -22,6 +22,7 @@ class EcommerceApplication : Application() {
     }
 
     private fun initializeDatabase() {
+        // made just for init if we delete the app to re-populate the db manually
         applicationScope.launch {
             getAllProductsUseCase.execute()
         }
