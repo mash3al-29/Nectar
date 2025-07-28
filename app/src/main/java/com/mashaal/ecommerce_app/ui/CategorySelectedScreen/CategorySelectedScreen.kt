@@ -73,6 +73,7 @@ fun CategorySelectedScreen(
                         ProductsGrid(
                             products = state.filteredProducts.ifEmpty { state.products },
                             onProductClick = onProductClick,
+                            modifier = Modifier.padding(bottom = MaterialTheme.appDimensions.paddingExtraLarge),
                             onAddToCartClick = { product -> viewModel.onEvent(CategorySelectedEvent.OnAddToCartClicked(product)) }
                         )
                     }

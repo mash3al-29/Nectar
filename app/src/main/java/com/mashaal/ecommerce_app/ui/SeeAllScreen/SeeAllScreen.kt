@@ -64,6 +64,7 @@ fun SeeAllScreen(
                         ProductsGrid(
                             products = state.products,
                             onProductClick = onProductClick,
+                            modifier = Modifier.padding(bottom = MaterialTheme.appDimensions.paddingSuperLarge),
                             onAddToCartClick = { product -> viewModel.onEvent(SeeAllEvent.OnAddToCartClicked(product)) }
                         )
                     }

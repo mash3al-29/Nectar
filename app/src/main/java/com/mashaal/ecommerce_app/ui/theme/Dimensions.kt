@@ -14,6 +14,7 @@ data class AppDimensions(
     val paddingMediumInBetween: Dp = 20.dp,
     val paddingLarge: Dp = 24.dp,
     val paddingExtraLarge: Dp = 32.dp,
+    val paddingSuperLarge: Dp = 45.dp,
     val screenPaddingHorizontal: Dp = 16.dp,
     val screenPaddingVertical: Dp = 16.dp,
     val standardScreenPadding: PaddingValues = PaddingValues(16.dp),
