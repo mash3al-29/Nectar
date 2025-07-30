@@ -5,11 +5,13 @@ import com.mashaal.ecommerce_app.ui.Common.clickableNoRipple
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,12 +46,11 @@ fun FilterScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.appColors.bottomSheetBackgroundColor)
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.appColors.bottomSheetBackgroundColor)
+                        .background(MaterialTheme.appColors.white)
                         .padding(
                             start = MaterialTheme.appDimensions.dimen24, 
                             end = MaterialTheme.appDimensions.dimen24, 
@@ -77,12 +78,20 @@ fun FilterScreen(
                     modifier = Modifier
                         .weight(1f)
                         .verticalScroll(scrollState)
+                        .fillMaxSize()
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = MaterialTheme.appDimensions.dimen16,
+                                topEnd = MaterialTheme.appDimensions.dimen16
+                            )
+                        )
+                        .background(MaterialTheme.appColors.bottomSheetBackgroundColor)
                         .padding(horizontal = MaterialTheme.appDimensions.dimen24)
                 ) {
                     Text(
                         text = stringResource(R.string.price_range),
                         style = MaterialTheme.appTextStyles.sectionHeader(),
-                        modifier = Modifier.padding(bottom = MaterialTheme.appDimensions.dimen16)
+                        modifier = Modifier.padding(bottom = MaterialTheme.appDimensions.dimen16, top = MaterialTheme.appDimensions.dimen16)
                     )
                     
                     PriceRange.entries.forEach { priceRange ->
