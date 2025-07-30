@@ -5,126 +5,148 @@ import androidx.lifecycle.viewModelScope
 import com.mashaal.ecommerce_app.domain.extensions.groceries
 import com.mashaal.ecommerce_app.domain.extensions.isBestSelling
 import com.mashaal.ecommerce_app.domain.extensions.isExclusiveOffer
+import com.mashaal.ecommerce_app.domain.model.Cart
 import com.mashaal.ecommerce_app.domain.model.Product
+import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetAllProductsUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetCartUseCase
+import com.mashaal.ecommerce_app.domain.usecase.SearchProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import com.mashaal.ecommerce_app.domain.usecase.GetAllProductsUseCase
-import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
-import com.mashaal.ecommerce_app.domain.usecase.SearchProductsUseCase
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val getAllProductsUseCase: GetAllProductsUseCase,
+    getAllProductsUseCase: GetAllProductsUseCase,
     private val addToCartUseCase: AddToCartUseCase,
-    private val searchProductsUseCase: SearchProductsUseCase
+    private val searchProductsUseCase: SearchProductsUseCase,
+    getCartUseCase: GetCartUseCase
 ) : ViewModel() {
-    private val _state = MutableStateFlow(MainScreenState())
-    val state: StateFlow<MainScreenState> = _state.asStateFlow()
 
-    private var hasInitialDataLoaded = false
-    
+    private val _searchQuery = MutableStateFlow("")
+    private val _isSearching = MutableStateFlow(false)
+    private val _isInitialLoading = MutableStateFlow(true)
+
+    val cartProductIds: StateFlow<Set<Int>> = getCartUseCase()
+        .catch { emit(Cart(emptyList())) }
+        .map { cart -> cart.items.map { it.product.id }.toSet() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptySet()
+        )
+
+    private val allProductsFlow = getAllProductsUseCase()
+        .catch { emit(emptyList()) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
     init {
-        loadDataIfNeeded()
+        viewModelScope.launch {
+            delay(LOADING_DELAY_MS)
+            _isInitialLoading.value = false
+        }
     }
-    
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MS = 300L
+        private const val LOADING_DELAY_MS = 1500L
+    }
+
+    private val searchResultsFlow = _searchQuery
+        .debounce(SEARCH_DEBOUNCE_MS)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            if (query.isBlank()) {
+                _isSearching.value = false
+                flowOf(emptyList<Product>())
+            } else {
+                _isSearching.value = true
+                searchProductsUseCase(query.trim())
+                    .catch { 
+                        _isSearching.value = false
+                        emit(emptyList()) 
+                    }
+                    .map { results ->
+                        _isSearching.value = false
+                        results
+                    }
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val state: StateFlow<MainScreenState> = combine(
+        _isInitialLoading,
+        allProductsFlow,
+        searchResultsFlow,
+        _searchQuery,
+        _isSearching
+    ) { isLoading, allProducts, searchResults, query, isSearching ->
+        if (isLoading) {
+            MainScreenState.Loading
+        } else {
+            val exclusiveOffers = allProducts.filter { it.isExclusiveOffer }
+            val bestSelling = allProducts.filter { it.isBestSelling }  
+            val groceries = allProducts.filter { it.groceries }
+            
+            MainScreenState.Success(
+                exclusiveOffers = exclusiveOffers,
+                bestSelling = bestSelling,
+                groceries = groceries,
+                searchResults = searchResults,
+                searchQuery = query,
+                isSearching = isSearching
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = MainScreenState.Loading
+    )
+
     fun onEvent(event: MainScreenEvent) {
         when (event) {
             is MainScreenEvent.OnSearchQueryChange -> {
-                _state.update { it.copy(searchQuery = event.query) }
-                performSearch(event.query)
-            }
-            is MainScreenEvent.OnCategorySelected -> {
-                _state.update { it.copy(selectedCategory = event.category) }
+                _searchQuery.value = event.query
             }
             is MainScreenEvent.OnAddToCartClicked -> {
                 addToCart(event.product)
             }
-            is MainScreenEvent.OnShopTabClicked -> {
-                _state.update { it.copy(selectedTabIndex = 0) }
-            }
-            is MainScreenEvent.OnExploreTabClicked -> {
-                _state.update { it.copy(selectedTabIndex = 1) }
-            }
-            is MainScreenEvent.OnCartTabClicked -> {
-                _state.update { it.copy(selectedTabIndex = 2) }
-            }
-        }
-    }
-
-    private fun loadDataIfNeeded() {
-        if (!hasInitialDataLoaded) {
-            loadData()
-        } else {
-            _state.update { it.copy(isLoading = false) }
-        }
-    }
-
-    private fun loadData() {
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            delay(500)
-                getAllProductsUseCase.execute().catch { e ->
-                    _state.update { it.copy(
-                        isLoading = false,
-                        error = e.message ?: "Unknown error occurred"
-                    )}
-                }.collect { productsList ->
-                    val exclusiveOffers = productsList.filter { it.isExclusiveOffer }
-                    val bestSelling = productsList.filter { it.isBestSelling }
-                    val groceries = productsList.filter { it.groceries }
-
-                    _state.update { it.copy(
-                        exclusiveOffers = exclusiveOffers,
-                        bestSelling = bestSelling,
-                        groceries = groceries,
-                        isLoading = false
-                    )}
-                    hasInitialDataLoaded = true
-                }
         }
     }
 
     private fun addToCart(product: Product) {
         viewModelScope.launch {
             try {
-                addToCartUseCase.execute(
+                addToCartUseCase(
                     productId = product.id,
                     quantity = 1,
                     portion = product.detail
                 )
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message ?: "Failed to add to cart") }
-            }
-        }
-    }
-
-    private fun performSearch(query: String) {
-        if (query.isBlank()) {
-            _state.update { it.copy(searchResults = emptyList(), isSearching = false) }
-            return
-        }
-
-        viewModelScope.launch {
-            try {
-                _state.update { it.copy(isSearching = true) }
-                val results = searchProductsUseCase.execute(query)
-                _state.update { it.copy(
-                    searchResults = results,
-                    isSearching = false
-                ) }
-            } catch (e: Exception) {
-                _state.update { it.copy(
-                    searchResults = emptyList(),
-                    isSearching = false,
-                    error = e.message ?: "Search failed"
-                ) }
+                println("Failed to add product to cart: ${e.message}")
             }
         }
     }

@@ -46,7 +46,7 @@ fun BannerCarousel(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(MaterialTheme.appDimensions.bannerHeight)
+                .height(MaterialTheme.appDimensions.dimen160)
                 .clip(MaterialTheme.appShapes.card)
         ) { page ->
             Image(
@@ -59,16 +59,16 @@ fun BannerCarousel(
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = MaterialTheme.appDimensions.paddingMedium),
-            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingSmall)
+                .padding(bottom = MaterialTheme.appDimensions.dimen16),
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.dimen8)
         ) {
             repeat(bannerImages.size) { index ->
                 val isSelected = pagerState.currentPage == index
                 Box(
                     modifier = Modifier
                         .size(
-                            width = if (isSelected) MaterialTheme.appDimensions.indicatorWidthLarge else MaterialTheme.appDimensions.indicatorWidthSmall, 
-                            height = MaterialTheme.appDimensions.indicatorHeight
+                            width = if (isSelected) MaterialTheme.appDimensions.dimen24 else MaterialTheme.appDimensions.dimen8, 
+                            height = MaterialTheme.appDimensions.dimen8
                         )
                         .clip(CircleShape)
                         .background(

@@ -1,9 +1,7 @@
 package com.mashaal.ecommerce_app.ui.Common
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,16 +12,16 @@ import androidx.compose.ui.res.stringResource
 import com.mashaal.ecommerce_app.R
 import com.mashaal.ecommerce_app.domain.model.Product
 import com.mashaal.ecommerce_app.ui.theme.appColors
-import com.mashaal.ecommerce_app.ui.theme.appDimensions
 
 @Composable
 fun SearchResultsContent(
+    modifier: Modifier = Modifier,
     isSearching: Boolean,
     searchResults: List<Product>,
     searchQuery: String,
     onProductClick: (Product) -> Unit,
     onAddToCartClick: (Product) -> Unit,
-    modifier: Modifier = Modifier
+    cartProductIds: Set<Int> = emptySet(),
 ) {
     when {
         isSearching -> {
@@ -51,6 +49,7 @@ fun SearchResultsContent(
                 products = searchResults,
                 onProductClick = onProductClick,
                 onAddToCartClick = onAddToCartClick,
+                cartProductIds = cartProductIds,
                 modifier = modifier
             )
         }

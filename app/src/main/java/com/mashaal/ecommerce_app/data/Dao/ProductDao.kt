@@ -12,6 +12,47 @@ interface ProductDao {
     @Query("SELECT * FROM products")
     fun getAllProducts(): Flow<List<ProductEntity>>
 
+    @Query("SELECT * FROM products WHERE LOWER(category) = LOWER(:category)")
+    fun getProductsByCategory(category: String): Flow<List<ProductEntity>>
+
+    @Query("""
+    SELECT * FROM products 
+    WHERE LOWER(category) = LOWER(:category) 
+    AND price BETWEEN :minPrice AND :maxPrice
+""")
+    fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): Flow<List<ProductEntity>>
+
+    @Query("""
+    SELECT * FROM products 
+    WHERE LOWER(category) = LOWER(:category) 
+    AND LOWER(detail) LIKE '%' || LOWER(:detail) || '%'
+""")
+    fun getProductsByCategoryAndDetail(category: String, detail: String): Flow<List<ProductEntity>>
+
+    @Query("""
+    SELECT * FROM products 
+    WHERE LOWER(category) = LOWER(:category) 
+    AND price BETWEEN :minPrice AND :maxPrice 
+    AND LOWER(detail) LIKE '%' || LOWER(:detail) || '%'
+""")
+    fun getProductsByCategoryPriceAndDetail(
+        category: String,
+        minPrice: Double,
+        maxPrice: Double,
+        detail: String
+    ): Flow<List<ProductEntity>>
+
+    @Query("""
+    SELECT * FROM products 
+    WHERE LOWER(name) LIKE '%' || LOWER(:query) || '%' 
+    OR LOWER(description) LIKE '%' || LOWER(:query) || '%' 
+    OR LOWER(category) LIKE '%' || LOWER(:query) || '%'
+""")
+    fun searchProducts(query: String): Flow<List<ProductEntity>>
+
+    @Query("SELECT DISTINCT category FROM products")
+    suspend fun getAllCategories(): List<String>
+
     @Query("SELECT * FROM products WHERE id = :id")
     suspend fun getProductById(id: Int): ProductEntity?
     
@@ -20,22 +61,4 @@ interface ProductDao {
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(product: ProductEntity)
-    
-    @Query("SELECT DISTINCT category FROM products")
-    suspend fun getAllCategories(): List<String>
-    
-    @Query("SELECT * FROM products WHERE category = :category")
-    suspend fun getProductsByCategory(category: String): List<ProductEntity>
-    
-    @Query("SELECT * FROM products WHERE category = :category AND price >= :minPrice AND price <= :maxPrice")
-    suspend fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): List<ProductEntity>
-    
-    @Query("SELECT * FROM products WHERE category = :category AND detail LIKE '%' || :detail || '%'")
-    suspend fun getProductsByCategoryAndDetail(category: String, detail: String): List<ProductEntity>
-    
-    @Query("SELECT * FROM products WHERE category = :category AND price >= :minPrice AND price <= :maxPrice AND detail LIKE '%' || :detail || '%'")
-    suspend fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): List<ProductEntity>
-    
-    @Query("SELECT * FROM products WHERE name LIKE '%' || :query || '%' OR detail LIKE '%' || :query || '%' OR category LIKE '%' || :query || '%'")
-    suspend fun searchProducts(query: String): List<ProductEntity>
 }

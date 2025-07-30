@@ -22,28 +22,36 @@ class ProductRepositoryImpl @Inject constructor(
             entities.map { it.toDomainModel() }
         }
     }
-    
+
     override suspend fun getAllCategories(): List<String> {
         return productDao.getAllCategories()
     }
-    
-    override suspend fun getProductsByCategory(category: String): List<Product> {
-        return productDao.getProductsByCategory(category).map { it.toDomainModel() }
+
+    override fun getProductsByCategory(category: String): Flow<List<Product>> {
+        return productDao.getProductsByCategory(category).map { it.map { entity -> entity.toDomainModel() } }
     }
-    
-    override suspend fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): List<Product> {
-        return productDao.getProductsByCategoryAndPrice(category, minPrice, maxPrice).map { it.toDomainModel() }
+
+    override fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): Flow<List<Product>> {
+        return productDao.getProductsByCategoryAndPrice(category, minPrice, maxPrice)
+            .map { it.map { entity -> entity.toDomainModel() } }
     }
-    
-    override suspend fun getProductsByCategoryAndDetail(category: String, detail: String): List<Product> {
-        return productDao.getProductsByCategoryAndDetail(category, detail).map { it.toDomainModel() }
+
+    override fun getProductsByCategoryAndDetail(category: String, detail: String): Flow<List<Product>> {
+        return productDao.getProductsByCategoryAndDetail(category, detail)
+            .map { it.map { entity -> entity.toDomainModel() } }
     }
-    
-    override suspend fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): List<Product> {
-        return productDao.getProductsByCategoryPriceAndDetail(category, minPrice, maxPrice, detail).map { it.toDomainModel() }
+
+    override fun getProductsByCategoryPriceAndDetail(
+        category: String,
+        minPrice: Double,
+        maxPrice: Double,
+        detail: String
+    ): Flow<List<Product>> {
+        return productDao.getProductsByCategoryPriceAndDetail(category, minPrice, maxPrice, detail)
+            .map { it.map { entity -> entity.toDomainModel() } }
     }
-    
-    override suspend fun searchProducts(query: String): List<Product> {
-        return productDao.searchProducts(query).map { it.toDomainModel() }
+
+    override fun searchProducts(query: String): Flow<List<Product>> {
+        return productDao.searchProducts(query).map { it -> it.map { it.toDomainModel() } }
     }
 }

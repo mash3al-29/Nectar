@@ -7,7 +7,6 @@ import androidx.compose.runtime.staticCompositionLocalOf
 val LocalAppColors = staticCompositionLocalOf { AppColors() }
 val LocalAppDimensions = staticCompositionLocalOf { AppDimensions() }
 val LocalAppShapes = staticCompositionLocalOf { AppShapes() }
-
 val LocalAppTextStyles = staticCompositionLocalOf { AppTextStyles() }
 
 val MaterialTheme.appColors: AppColors

@@ -351,38 +351,46 @@ Nectar/
 3. Sync project with Gradle files
 4. Run the app on an emulator or device
 
-The app includes the `EcommerceApplication.initializeDatabase()` method which is run at startup that makes the database appear through the app inspection tab in android studio to populate the database manually there.
+## 🗃️ Database Setup
+
+The app automatically creates and populates a local SQLite database with sample product data on first launch. The database includes:
+
+- **18 sample products** across 6 categories
+- **Nutritional information** for each product
+- **Product images, descriptions, and ratings**
+- **Pre-configured cart functionality**
+
+### Database Features
+
+- **Auto-seeding**: Database is automatically populated on first install
+- **Persistent data**: Data survives app reinstalls and updates
+- **Demo-ready**: Perfect for demonstrations and testing
+- **Real-time sync**: Changes are immediately reflected in the UI
+
+### Database Structure
+
 ```sql
-INSERT INTO products (name, detail, imageUrl, price, description, category, nutrition, review) VALUES
--- Fresh Fruits & Vegetable
-('Natural Red Apple', '1kg', 'https://img.freepik.com/premium-photo/red-apple-with-white-background-shadow-it_14117-4740.jpg', 4.99, 'Apples are nutritious. Apples may be good for weight loss. Apples may be good for your heart. As part of a healthful and varied diet.', 'Fresh Fruits & Vegetable', 'Energy=52 kcal;Protein=0.3 g;Carbohydrates=14 g;Fat=0.2 g;Fiber=2.4 g', 5),
-('Carrot', '1kg', 'https://t3.ftcdn.net/jpg/02/99/43/48/360_F_299434842_UF1e0k44KUpkdtAEu0XbbPVnTHFuRwAm.jpg', 1.99, 'Carrots are a great source of beta carotene, fiber, vitamin K1, and antioxidants.', 'Fresh Fruits & Vegetable', 'Energy=41 kcal;Protein=0.9 g;Carbohydrates=10 g;Fat=0.2 g;Fiber=2.8 g', 4),
-('Cucumber', '1kg', 'https://img.freepik.com/premium-photo/cucumber-isolated-white-background_319514-5406.jpg', 1.49, 'Cucumbers are low in calories and high in water and important vitamins and minerals.', 'Fresh Fruits & Vegetable', 'Energy=16 kcal;Protein=0.7 g;Carbohydrates=3.6 g;Fat=0.1 g;Fiber=0.5 g', 3),
+-- Products table with sample data including:
+-- Fresh Fruits & Vegetable (Apple, Carrot, Cucumber)
+-- Cooking Oil & Ghee (Sunflower Oil, Pure Ghee, Canola Oil)  
+-- Meat & Fish (Chicken Breast, Salmon, Beef Steak)
+-- Bakery & Snacks (Wheat Bread, Croissant, Potato Chips)
+-- Dairy & Eggs (Fresh Milk, Organic Eggs, Cheddar Cheese)
+-- Beverages (Orange Juice, Green Tea, Cola Drink)
 
--- Cooking Oil & Ghee
-('Sunflower Oil', '1L', 'https://purepng.com/public/uploads/large/purepng.com-sunflower-oilsunflower-oilcooking-oilfrying-oilnon-volatile-oil-1411529833165ctzjx.png', 5.49, 'Sunflower oil is light, healthy, and ideal for cooking and frying.', 'Cooking Oil & Ghee', 'Energy=884 kcal;Protein=0 g;Carbohydrates=0 g;Fat=100 g;Fiber=0 g', 4),
-('Pure Ghee', '500g', 'https://rosepng.com/wp-content/uploads/2025/01/desi-ghee-1.png', 6.99, 'Ghee is rich in fat-soluble vitamins and is used widely in traditional recipes.', 'Cooking Oil & Ghee', 'Energy=900 kcal;Protein=0 g;Carbohydrates=0 g;Fat=100 g;Fiber=0 g', 5),
-('Canola Oil', '1L', 'https://www.pikpng.com/pngl/b/197-1975663_oil-sunflower-canola-cooking-seed-rapeseed-oils-clipart.png', 4.79, 'Canola oil is low in saturated fat and good for heart health.', 'Cooking Oil & Ghee', 'Energy=884 kcal;Protein=0 g;Carbohydrates=0 g;Fat=100 g;Fiber=0 g', 4),
-
--- Meat & Fish
-('Fresh Chicken Breast', '500g', 'https://cdn.pixabay.com/photo/2014/03/05/01/20/chicken-breast-279849_1280.jpg', 7.99, 'Lean and protein-rich, ideal for healthy cooking.', 'Meat & Fish', 'Energy=165 kcal;Protein=31 g;Carbohydrates=0 g;Fat=3.6 g;Fiber=0 g', 5),
-('Salmon Fillet', '300g', 'https://cdn.pixabay.com/photo/2021/05/25/11/43/fish-6282216_1280.jpg', 9.99, 'Salmon is rich in omega-3 fatty acids and excellent for heart and brain health.', 'Meat & Fish', 'Energy=208 kcal;Protein=20 g;Carbohydrates=0 g;Fat=13 g;Fiber=0 g', 5),
-('Beef Steak', '1kg', 'https://cdn.pixabay.com/photo/2018/02/08/15/02/meat-3139641_1280.jpg', 12.49, 'High-protein and iron-rich red meat.', 'Meat & Fish', 'Energy=250 kcal;Protein=26 g;Carbohydrates=0 g;Fat=17 g;Fiber=0 g', 4),
-
--- Bakery & Snacks
-('Whole Wheat Bread', '400g', 'https://static.vecteezy.com/system/resources/previews/002/463/399/large_2x/slice-whole-wheat-bread-isolated-on-white-background-free-photo.jpg', 2.19, 'Made with whole grains, good source of fiber.', 'Bakery & Snacks', 'Energy=247 kcal;Protein=13 g;Carbohydrates=41 g;Fat=4.2 g;Fiber=7 g', 4),
-('Butter Croissant', '1pc', 'https://cdn.pixabay.com/photo/2012/02/29/12/17/bread-18987_1280.jpg', 1.49, 'Flaky and buttery pastry, perfect for breakfast.', 'Bakery & Snacks', 'Energy=406 kcal;Protein=8 g;Carbohydrates=45 g;Fat=21 g;Fiber=2.6 g', 5),
-('Potato Chips', '150g', 'https://cdn.pixabay.com/photo/2022/12/05/17/51/potato-chips-7637285_1280.jpg', 1.99, 'Crispy, salted, and addictive snack.', 'Bakery & Snacks', 'Energy=536 kcal;Protein=7 g;Carbohydrates=53 g;Fat=34 g;Fiber=4.8 g', 4),
-
--- Dairy & Eggs
-('Fresh Milk', '1L', 'https://img.freepik.com/premium-photo/glass-bottle-fresh-milk-isolated-white-background_252965-47.jpg', 2.29, 'Rich in calcium and vitamin D for bone health.', 'Dairy & Eggs', 'Energy=42 kcal;Protein=3.4 g;Carbohydrates=5 g;Fat=1 g;Fiber=0 g', 5),
-('Organic Eggs', '12pcs', 'https://img.freepik.com/free-photo/three-fresh-organic-raw-eggs-isolated-white-surface_114579-43677.jpg', 3.49, 'High in protein and healthy fats.', 'Dairy & Eggs', 'Energy=155 kcal;Protein=13 g;Carbohydrates=1.1 g;Fat=11 g;Fiber=0 g', 5),
-('Cheddar Cheese', '250g', 'https://img.freepik.com/premium-photo/cheddar-cheese-isolated-white-background_407474-20664.jpg', 4.59, 'Bold, tangy flavor great for sandwiches and cooking.', 'Dairy & Eggs', 'Energy=403 kcal;Protein=25 g;Carbohydrates=1.3 g;Fat=33 g;Fiber=0 g', 4),
-
--- Beverages
-('Orange Juice', '1L', 'https://img.freepik.com/premium-photo/orange-juice-white-background_269353-1137.jpg', 3.79, 'Freshly squeezed and full of vitamin C.', 'Beverages', 'Energy=45 kcal;Protein=0.7 g;Carbohydrates=10.4 g;Fat=0.2 g;Fiber=0.2 g', 5),
-('Green Tea', '25 bags', 'https://img.freepik.com/premium-photo/cup-green-tea-with-leaves-white-background_787273-2374.jpg', 2.49, 'Boosts metabolism and rich in antioxidants.', 'Beverages', 'Energy=1 kcal;Protein=0 g;Carbohydrates=0 g;Fat=0 g;Fiber=0 g', 4),
-('Cola Drink', '500ml', 'https://img.freepik.com/premium-photo/drink-cola-with-ice-glass-white-background_55716-123.jpg', 1.19, 'Classic carbonated soft drink.', 'Beverages', 'Energy=42 kcal;Protein=0 g;Carbohydrates=11 g;Fat=0 g;Fiber=0 g', 4);
+CREATE TABLE products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    detail TEXT NOT NULL,
+    imageUrl TEXT NOT NULL,
+    price REAL NOT NULL,
+    description TEXT NOT NULL,
+    category TEXT NOT NULL,
+    nutrition TEXT NOT NULL, -- JSON formatted nutrition data
+    review INTEGER NOT NULL
+);
 ```
+
+The database is automatically created and seeded through the `DatabaseSeeder` class, ensuring consistent demo data across all installations.
 
 ---

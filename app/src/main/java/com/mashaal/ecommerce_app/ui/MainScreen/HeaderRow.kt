@@ -21,10 +21,10 @@ fun HeaderRow(@StringRes mainText: Int, onClickHandler: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                start = MaterialTheme.appDimensions.paddingLarge,
-                end = MaterialTheme.appDimensions.paddingLarge,
-                top = MaterialTheme.appDimensions.paddingExtraLarge,
-                bottom = MaterialTheme.appDimensions.paddingMedium
+                start = MaterialTheme.appDimensions.dimen24,
+                end = MaterialTheme.appDimensions.dimen24,
+                top = MaterialTheme.appDimensions.dimen32,
+                bottom = MaterialTheme.appDimensions.dimen16
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

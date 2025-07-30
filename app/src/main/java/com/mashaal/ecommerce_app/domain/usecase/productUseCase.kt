@@ -6,25 +6,25 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetProductByIdUseCase @Inject constructor(private val repository: ProductRepository) {
-    suspend fun execute(productId: Int): Product? {
+    suspend operator fun invoke(productId: Int): Product? {
         return repository.getProductById(productId)
     }
 }
 
 class GetAllProductsUseCase @Inject constructor(private val repository: ProductRepository) {
-    fun execute(): Flow<List<Product>> {
+    operator fun invoke(): Flow<List<Product>> {
         return repository.getAllProducts()
     }
 }
 
 class GetAllCategoriesUseCase @Inject constructor(private val repository: ProductRepository) {
-    suspend fun execute(): List<String> {
+    suspend operator fun invoke(): List<String> {
         return repository.getAllCategories()
     }
 }
 
 class GetProductsByCategoryUseCase @Inject constructor(private val repository: ProductRepository) {
-    suspend fun execute(category: String): List<Product> {
+    operator fun invoke(category: String): Flow<List<Product>> {
         return repository.getProductsByCategory(category)
     }
 }

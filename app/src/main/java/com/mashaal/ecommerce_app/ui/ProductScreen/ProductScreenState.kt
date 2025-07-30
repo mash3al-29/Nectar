@@ -2,17 +2,21 @@ package com.mashaal.ecommerce_app.ui.ProductScreen
 
 import com.mashaal.ecommerce_app.domain.model.Product
 
-data class ProductScreenState(
-    val product: Product? = null,
-    val quantity: Int = 1,
-    val isFavorite: Boolean = false,
-    val isLoading: Boolean = true,
-    val error: String? = null,
-    val addToCartSuccess: Boolean = false,
-    val shareData: ShareData? = null
-){
-    val totalPrice: Float
-        get() = ((product?.price ?: 0.0) * quantity).toFloat()
+sealed class ProductScreenState {
+    data object Loading : ProductScreenState()
+    data class Success(
+        val product: Product? = null,
+        val quantity: Int = 1,
+        val isFavorite: Boolean = false,
+        val isInCart: Boolean = false,
+        val addToCartSuccess: Boolean = false,
+        val shareData: ShareData? = null
+    ) : ProductScreenState() {
+        val totalPrice: Float
+            get() = ((product?.price ?: 0.0) * quantity).toFloat()
+    }
+    
+    data class Error(val message: String) : ProductScreenState()
 }
 
 data class ShareData(

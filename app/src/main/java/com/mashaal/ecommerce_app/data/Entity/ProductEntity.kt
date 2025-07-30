@@ -30,20 +30,4 @@ data class ProductEntity(
             review = review
         )
     }
-
-    companion object{
-        fun fromDomainModel(product: Product): ProductEntity{
-            return ProductEntity(
-                id = product.id,
-                name = product.name,
-                detail = product.detail,
-                imageUrl = product.imageUrl,
-                price = product.price,
-                description = product.description,
-                category = product.category,
-                nutrition = product.nutrition,
-                review = product.review
-            )
-        }
-    }
 }

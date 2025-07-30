@@ -1,7 +1,6 @@
 package com.mashaal.ecommerce_app.ui.Common
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.*
@@ -31,15 +30,14 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController
-
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(MaterialTheme.appDimensions.searchBarHeight)
+            .height(MaterialTheme.appDimensions.dimen50)
             .clip(MaterialTheme.appShapes.searchBar)
             .background(MaterialTheme.appColors.searchBackgroundColor)
-            .padding(horizontal = MaterialTheme.appDimensions.paddingMedium),
+            .padding(horizontal = MaterialTheme.appDimensions.dimen16),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -47,9 +45,9 @@ fun SearchBar(
                 imageVector = AppIcons.Search,
                 contentDescription = stringResource(R.string.search_store),
                 tint = MaterialTheme.appColors.black,
-                modifier = Modifier.size(MaterialTheme.appDimensions.iconSizeSmall)
+                modifier = Modifier.size(MaterialTheme.appDimensions.dimen20)
             )
-            Spacer(modifier = Modifier.width(MaterialTheme.appDimensions.spacingSmall))
+            Spacer(modifier = Modifier.width(MaterialTheme.appDimensions.dimen8))
             Box(modifier = Modifier.weight(1f)) {
                 if (query.isEmpty()) {
                     Text(
@@ -102,13 +100,13 @@ fun BottomNavBar(
             .navigationBarsPadding(),
         shape = MaterialTheme.appShapes.bottomNav,
         color = MaterialTheme.appColors.white,
-        tonalElevation = MaterialTheme.appDimensions.elevationLarge,
-        shadowElevation = MaterialTheme.appDimensions.elevationLarge
+        tonalElevation = MaterialTheme.appDimensions.dimen8,
+        shadowElevation = MaterialTheme.appDimensions.dimen8
     ) {
         NavigationBar(
             containerColor = MaterialTheme.appColors.transparent,
             tonalElevation = 0.dp,
-            modifier = Modifier.padding(vertical = MaterialTheme.appDimensions.spacingSmall)
+            modifier = Modifier.padding(vertical = MaterialTheme.appDimensions.dimen8)
         ) {
             items.forEachIndexed { index, item ->
                 NavigationBarItem(
@@ -164,7 +162,7 @@ fun SeeAllButton(
         style = MaterialTheme.appTextStyles.seeAllLink(),
         textAlign = TextAlign.End,
         modifier = modifier
-            .clickable { onClick() }
-            .padding(vertical = MaterialTheme.appDimensions.spacingExtraSmall)
+            .clickableNoRipple { onClick() }
+            .padding(vertical = MaterialTheme.appDimensions.dimen4)
     )
 }

@@ -7,9 +7,9 @@ interface ProductRepository {
     suspend fun getProductById(id: Int): Product?
     fun getAllProducts(): Flow<List<Product>>
     suspend fun getAllCategories(): List<String>
-    suspend fun getProductsByCategory(category: String): List<Product>
-    suspend fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): List<Product>
-    suspend fun getProductsByCategoryAndDetail(category: String, detail: String): List<Product>
-    suspend fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): List<Product>
-    suspend fun searchProducts(query: String): List<Product>
+    fun getProductsByCategory(category: String): Flow<List<Product>>
+    fun getProductsByCategoryAndPrice(category: String, minPrice: Double, maxPrice: Double): Flow<List<Product>>
+    fun getProductsByCategoryAndDetail(category: String, detail: String): Flow<List<Product>>
+    fun getProductsByCategoryPriceAndDetail(category: String, minPrice: Double, maxPrice: Double, detail: String): Flow<List<Product>>
+    fun searchProducts(query: String): Flow<List<Product>>
 }

@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    fun execute(): Flow<Cart> {
+    operator fun invoke(): Flow<Cart> {
         return cartRepository.getCart()
     }
 }
@@ -16,7 +16,7 @@ class GetCartUseCase @Inject constructor(
 class AddToCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend fun execute(productId: Int, quantity: Int, portion: String) {
+    suspend operator fun invoke(productId: Int, quantity: Int, portion: String) {
         cartRepository.addToCart(productId, quantity, portion)
     }
 }
@@ -24,7 +24,7 @@ class AddToCartUseCase @Inject constructor(
 class RemoveFromCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend fun execute(productId: Int) {
+    suspend operator fun invoke(productId: Int) {
         cartRepository.removeFromCart(productId)
     }
 }
@@ -32,31 +32,23 @@ class RemoveFromCartUseCase @Inject constructor(
 class UpdateCartQuantityUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend fun execute(productId: Int, quantity: Int) {
+    suspend operator fun invoke(productId: Int, quantity: Int) {
         cartRepository.updateQuantity(productId, quantity)
-    }
-}
-
-class GetCartItemCountUseCase @Inject constructor(
-    private val cartRepository: CartRepository
-) {
-    suspend fun execute(): Int {
-        return cartRepository.getCartItemCount()
-    }
-}
-
-class GetCartTotalQuantityUseCase @Inject constructor(
-    private val cartRepository: CartRepository
-) {
-    suspend fun execute(): Int {
-        return cartRepository.getTotalQuantity()
     }
 }
 
 class RemoveAllFromCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
-){
-    suspend fun execute() {
+) {
+    suspend operator fun invoke() {
         cartRepository.removeAllFromCart()
+    }
+}
+
+class IsProductInCartUseCase @Inject constructor(
+    private val cartRepository: CartRepository
+) {
+    suspend operator fun invoke(productId: Int): Boolean {
+        return cartRepository.isProductInCart(productId)
     }
 }

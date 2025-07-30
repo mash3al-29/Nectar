@@ -13,27 +13,29 @@ import com.mashaal.ecommerce_app.ui.theme.appDimensions
 
 @Composable
 fun ProductsGrid(
+    modifier: Modifier = Modifier,
     products: List<Product>,
     onProductClick: (Product) -> Unit,
     onAddToCartClick: (Product) -> Unit,
-    modifier: Modifier = Modifier
+    cartProductIds: Set<Int> = emptySet(),
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(
-            start = MaterialTheme.appDimensions.paddingLarge,
-            end = MaterialTheme.appDimensions.paddingLarge,
-            bottom = MaterialTheme.appDimensions.paddingLarge
+            start = MaterialTheme.appDimensions.dimen24,
+            end = MaterialTheme.appDimensions.dimen24,
+            bottom = MaterialTheme.appDimensions.dimen80
         ),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingMedium),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.spacingMedium),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.dimen16),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.appDimensions.dimen16),
         modifier = modifier.fillMaxSize()
     ) {
         items(products) { product ->
             ProductItem(
                 product = product,
                 onProductClick = onProductClick,
-                onAddToCartClick = onAddToCartClick
+                onAddToCartClick = onAddToCartClick,
+                isInCart = cartProductIds.contains(product.id)
             )
         }
     }

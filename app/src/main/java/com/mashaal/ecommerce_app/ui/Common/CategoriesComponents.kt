@@ -3,7 +3,6 @@ package com.mashaal.ecommerce_app.ui.Common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import com.mashaal.ecommerce_app.R
@@ -25,7 +25,6 @@ import com.mashaal.ecommerce_app.ui.theme.appShapes
 import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 object CategoriesComponents {
-
 @Composable
 fun CategoryItem(
     category: String,
@@ -35,11 +34,11 @@ fun CategoryItem(
 ) {
     Box(
         modifier = Modifier
-            .size(width = MaterialTheme.appDimensions.categoryCardWidth, height = MaterialTheme.appDimensions.categoryCardHeight)
+            .size(width = MaterialTheme.appDimensions.dimen220, height = MaterialTheme.appDimensions.dimen170)
             .clip(MaterialTheme.appShapes.card)
             .background(backgroundColor)
-            .border(MaterialTheme.appDimensions.borderWidth, borderColor, MaterialTheme.appShapes.card)
-            .clickable(onClick = onClick),
+            .border(MaterialTheme.appDimensions.dimen1, borderColor, MaterialTheme.appShapes.card)
+            .clickableNoRipple(onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -51,8 +50,8 @@ fun CategoryItem(
                 contentDescription = category,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .size(width = MaterialTheme.appDimensions.categoryImageWidth, height = MaterialTheme.appDimensions.categoryImageHeight)
-                    .padding(bottom = MaterialTheme.appDimensions.paddingMedium)
+                    .size(width = MaterialTheme.appDimensions.dimen111, height = MaterialTheme.appDimensions.dimen75)
+                    .padding(bottom = MaterialTheme.appDimensions.dimen16)
             )
             Text(
                 text = category,
@@ -60,8 +59,8 @@ fun CategoryItem(
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.appColors.black,
                 modifier = Modifier
-                    .width(MaterialTheme.appDimensions.categoryTextWidth)
-                    .height(MaterialTheme.appDimensions.categoryTextHeight)
+                    .width(MaterialTheme.appDimensions.dimen93)
+                    .height(MaterialTheme.appDimensions.dimen44)
             )
         }
     }
@@ -122,7 +121,7 @@ private fun getCategoryImageResource(category: String): Int {
         modifier: Modifier = Modifier,
         checkedColor: Color = MaterialTheme.appColors.primary,
         borderColor: Color = MaterialTheme.appColors.gray,
-        size: Dp = MaterialTheme.appDimensions.iconSize
+        size: Dp = MaterialTheme.appDimensions.dimen24
     ) {
         Box(
             modifier = modifier
@@ -130,17 +129,17 @@ private fun getCategoryImageResource(category: String): Int {
                 .clip(MaterialTheme.appShapes.checkbox)
                 .background(if (checked) checkedColor else MaterialTheme.appColors.transparent)
                 .border(
-                    width = MaterialTheme.appDimensions.borderWidthMedium,
+                    width = MaterialTheme.appDimensions.dimen2,
                     color = if (checked) checkedColor else borderColor,
                     shape = MaterialTheme.appShapes.checkbox
                 )
-                .clickable { onCheckedChange(!checked) },
+                .clickableNoRipple { onCheckedChange(!checked) },
             contentAlignment = Alignment.Center
         ) {
             if (checked) {
                 Icon(
                     imageVector = AppIcons.Check,
-                    contentDescription = "Checked",
+                    contentDescription = stringResource(R.string.checked),
                     tint = MaterialTheme.appColors.white,
                     modifier = Modifier.size(size * 0.6f)
                 )

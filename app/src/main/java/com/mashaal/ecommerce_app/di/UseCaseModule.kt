@@ -14,23 +14,25 @@ import javax.inject.Singleton
 object UseCaseModule {
     @Provides
     @Singleton
-    fun getProductByIdUseCase(productRepository: ProductRepository): GetProductByIdUseCase {
+    fun provideGetProductByIdUseCase(productRepository: ProductRepository): GetProductByIdUseCase {
         return GetProductByIdUseCase(productRepository)
     }
+
     @Provides
     @Singleton
-    fun provideGetAllProducts(productRepository: ProductRepository): GetAllProductsUseCase {
+    fun provideGetAllProductsUseCase(productRepository: ProductRepository): GetAllProductsUseCase {
         return GetAllProductsUseCase(productRepository)
     }
 
     @Provides
     @Singleton
-    fun provideGetAllCategories(productRepository: ProductRepository): GetAllCategoriesUseCase {
+    fun provideGetAllCategoriesUseCase(productRepository: ProductRepository): GetAllCategoriesUseCase {
         return GetAllCategoriesUseCase(productRepository)
     }
+
     @Provides
     @Singleton
-    fun provideGetProductsByCategory(productRepository: ProductRepository): GetProductsByCategoryUseCase {
+    fun provideGetProductsByCategoryUseCase(productRepository: ProductRepository): GetProductsByCategoryUseCase {
         return GetProductsByCategoryUseCase(productRepository)
     }
     
@@ -63,22 +65,17 @@ object UseCaseModule {
     fun provideUpdateCartQuantityUseCase(cartRepository: CartRepository): UpdateCartQuantityUseCase {
         return UpdateCartQuantityUseCase(cartRepository)
     }
-    
-    @Provides
-    @Singleton
-    fun provideGetCartItemCountUseCase(cartRepository: CartRepository): GetCartItemCountUseCase {
-        return GetCartItemCountUseCase(cartRepository)
-    }
-    
-    @Provides
-    @Singleton
-    fun provideGetCartTotalQuantityUseCase(cartRepository: CartRepository): GetCartTotalQuantityUseCase {
-        return GetCartTotalQuantityUseCase(cartRepository)
-    }
+
 
     @Provides
     @Singleton
-    fun provideRemoveAllFromCartUseCase(cartRepository: CartRepository) : RemoveAllFromCartUseCase{
+    fun provideRemoveAllFromCartUseCase(cartRepository: CartRepository): RemoveAllFromCartUseCase {
         return RemoveAllFromCartUseCase(cartRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideIsProductInCartUseCase(cartRepository: CartRepository): IsProductInCartUseCase {
+        return IsProductInCartUseCase(cartRepository)
     }
 }

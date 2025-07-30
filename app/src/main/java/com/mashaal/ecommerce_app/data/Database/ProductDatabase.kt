@@ -11,7 +11,7 @@ import com.mashaal.ecommerce_app.data.util.MapConverter
 
 @Database(
     entities = [ProductEntity::class, CartEntity::class], 
-    version = 2, 
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(MapConverter::class)

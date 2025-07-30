@@ -1,7 +1,6 @@
 package com.mashaal.ecommerce_app.ui.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -50,7 +49,7 @@ class AppTextStyles {
     @Composable
     fun productDescription() = TextStyle(
         fontFamily = GilroyRegularFont,
-        fontSize = 14.sp,
+        fontSize = 16.sp,
         color = MaterialTheme.appColors.darkGray,
         lineHeight = 24.sp
     )
@@ -155,11 +154,6 @@ class AppTextStyles {
         fontFamily = GilroyMediumFont,
         fontSize = 16.sp,
         color = MaterialTheme.appColors.errorColor
-    )
-
-    @Composable
-    fun placeholderText() = TextStyle(
-        color = MaterialTheme.appColors.gray
     )
 
     @Composable

@@ -2,26 +2,118 @@ package com.mashaal.ecommerce_app.ui.CategorySelectedScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mashaal.ecommerce_app.domain.model.Cart
 import com.mashaal.ecommerce_app.domain.model.Product
-import com.mashaal.ecommerce_app.domain.usecase.*
+import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetCartUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetProductsByCategoryAndDetailUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetProductsByCategoryAndPriceUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetProductsByCategoryPriceAndDetailUseCase
+import com.mashaal.ecommerce_app.domain.usecase.GetProductsByCategoryUseCase
+import com.mashaal.ecommerce_app.ui.FilterScreen.PriceRange
+import com.mashaal.ecommerce_app.ui.FilterScreen.ProductPortion
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class CategorySelectedViewModel @Inject constructor(
     private val getProductsByCategoryUseCase: GetProductsByCategoryUseCase,
     private val getProductsByCategoryAndPriceUseCase: GetProductsByCategoryAndPriceUseCase,
     private val getProductsByCategoryAndDetailUseCase: GetProductsByCategoryAndDetailUseCase,
     private val getProductsByCategoryPriceAndDetailUseCase: GetProductsByCategoryPriceAndDetailUseCase,
-    private val addToCartUseCase: AddToCartUseCase
+    private val addToCartUseCase: AddToCartUseCase,
+    getCartUseCase: GetCartUseCase
 ) : ViewModel() {
-    private val _state = MutableStateFlow(CategorySelectedState())
-    val state: StateFlow<CategorySelectedState> = _state.asStateFlow()
+    
+    private val _categoryName = MutableStateFlow("")
+    private val _selectedPriceRange = MutableStateFlow<PriceRange?>(null)
+    private val _selectedProductPortions = MutableStateFlow<Set<ProductPortion>>(emptySet())
+
+    val cartProductIds: StateFlow<Set<Int>> = getCartUseCase()
+        .catch { emit(Cart(emptyList())) }
+        .map { cart -> cart.items.map { it.product.id }.toSet() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptySet()
+        )
+
+    private val productsFlow = combine(
+        _categoryName,
+        _selectedPriceRange,
+        _selectedProductPortions
+    ) { categoryName, priceRange, productPortions ->
+        Triple(categoryName, priceRange, productPortions)
+    }.flatMapLatest { (categoryName, priceRange, productPortions) ->
+        if (categoryName.isBlank()) {
+            flowOf(emptyList())
+        } else {
+            when {
+                priceRange != null && productPortions.isNotEmpty() -> {
+                    val (minPrice, maxPrice) = parsePriceRange(priceRange)
+                    combineProductDetailFlows(productPortions) { detail ->
+                        getProductsByCategoryPriceAndDetailUseCase(categoryName, minPrice, maxPrice, detail)
+                    }
+                }
+                priceRange != null -> {
+                    val (minPrice, maxPrice) = parsePriceRange(priceRange)
+                    getProductsByCategoryAndPriceUseCase(categoryName, minPrice, maxPrice)
+                        .catch { emit(emptyList()) }
+                }
+                productPortions.isNotEmpty() -> {
+                    combineProductDetailFlows(productPortions) { detail ->
+                        getProductsByCategoryAndDetailUseCase(categoryName, detail)
+                    }
+                }
+                else -> {
+                    getProductsByCategoryUseCase(categoryName)
+                        .catch { emit(emptyList()) }
+                }
+            }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+
+    val state: StateFlow<CategorySelectedState> = combine(
+        _categoryName,
+        productsFlow,
+        _selectedPriceRange,
+        _selectedProductPortions
+    ) { categoryName, products, priceRange, productPortions ->
+        if (categoryName.isBlank()) {
+            CategorySelectedState.Loading
+        } else {
+            CategorySelectedState.Success(
+                products = if (priceRange == null && productPortions.isEmpty()) products else emptyList(),
+                filteredProducts = if (priceRange != null || productPortions.isNotEmpty()) products else emptyList(),
+                categoryName = categoryName,
+                selectedPriceRange = priceRange,
+                selectedProductPortions = productPortions
+            )
+        }
+    }.catch { throwable ->
+        emit(CategorySelectedState.Error(throwable.message ?: "Failed to load products"))
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = CategorySelectedState.Loading
+    )
 
     fun onEvent(event: CategorySelectedEvent) {
         when (event) {
@@ -34,138 +126,60 @@ class CategorySelectedViewModel @Inject constructor(
     private fun addToCart(product: Product) {
         viewModelScope.launch {
             try {
-                addToCartUseCase.execute(
+                addToCartUseCase(
                     productId = product.id,
                     quantity = 1,
                     portion = product.detail
                 )
             } catch (e: Exception) {
-                _state.update { it.copy(error = e.message ?: "Failed to add to cart") }
+                println("Failed to add product to cart: ${e.message}")
             }
         }
     }
 
     fun loadProductsByCategory(categoryName: String) {
-        viewModelScope.launch {
-            try {
-                _state.update { it.copy(isLoading = true, categoryName = categoryName) }
-                val products = getProductsByCategoryUseCase.execute(categoryName)
-                _state.update { it.copy(
-                    products = products,
-                    filteredProducts = emptyList(),
-                    isLoading = false
-                ) }
-                
-                checkAndApplyFilters()
-            } catch (e: Exception) {
-                _state.update { it.copy(
-                    isLoading = false,
-                    error = e.message ?: "Failed to load products for $categoryName"
-                ) }
-            }
-        }
+        _categoryName.value = categoryName
     }
 
-    fun applyFilterResults(priceRange: String?, productPortions: Set<String>) {
-        if (priceRange != null || productPortions.isNotEmpty()) {
-            _state.update { it.copy(
-                selectedPriceRange = priceRange,
-                selectedProductPortions = productPortions
-            ) }
-            
-            if (_state.value.products.isNotEmpty()) {
-                viewModelScope.launch {
-                    applyFilters()
+    fun applyFilterResults(priceRange: PriceRange?, productPortions: Set<ProductPortion>) {
+        _selectedPriceRange.value = priceRange
+        _selectedProductPortions.value = productPortions
+    }
+
+    private fun combineProductDetailFlows(
+        productPortions: Set<ProductPortion>,
+        flowProvider: (String) -> Flow<List<Product>>
+    ): Flow<List<Product>> {
+        val detailFlows = productPortions.map { portion ->
+            // Convert ProductPortion enum to text for database query - this is the only place we need text conversion
+            val detailText = portion.stringResId.let { 
+                // We'll need context here, but for now let's use a mapping approach
+                when (portion) {
+                    ProductPortion.KG_1 -> "1kg"
+                    ProductPortion.L_1 -> "1L"
+                    ProductPortion.G_500 -> "500g"
+                    ProductPortion.G_300 -> "300g"
+                    ProductPortion.G_400 -> "400g"
+                    ProductPortion.PC_1 -> "1pc"
+                    ProductPortion.G_150 -> "150g"
+                    ProductPortion.PCS_12 -> "12pcs"
+                    ProductPortion.G_250 -> "250g"
+                    ProductPortion.BAGS_25 -> "25 bags"
+                    ProductPortion.ML_500 -> "500ml"
                 }
             }
+            flowProvider(detailText).catch { emit(emptyList()) }
+        }
+        return if (detailFlows.isNotEmpty()) {
+            combine(detailFlows) { flowResults: Array<List<Product>> ->
+                flowResults.toList().flatten().distinctBy { it.id }
+            }
+        } else {
+            flowOf(emptyList())
         }
     }
 
-    private fun checkAndApplyFilters() {
-        if (_state.value.selectedPriceRange != null || _state.value.selectedProductPortions.isNotEmpty()) {
-            viewModelScope.launch {
-                applyFilters()
-            }
-        }
-    }
-
-    private fun applyFilters() {
-        viewModelScope.launch {
-            try {
-                val categoryName = _state.value.categoryName
-                val priceRange = _state.value.selectedPriceRange
-                val selectedProductPortions = _state.value.selectedProductPortions
-                
-                if (priceRange == null && selectedProductPortions.isEmpty()) {
-                    _state.update { it.copy(
-                        filteredProducts = emptyList(),
-                        error = null
-                    ) }
-                    return@launch
-                }
-                
-                val filteredProducts = fetchFilteredProducts(
-                    categoryName, 
-                    priceRange, 
-                    selectedProductPortions
-                )
-                
-                _state.update { it.copy(
-                    filteredProducts = filteredProducts,
-                    error = if (filteredProducts.isEmpty()) "No products match your filter criteria" else null
-                ) }
-            } catch (e: Exception) {
-                _state.update { it.copy(
-                    error = e.message ?: "Failed to apply filters"
-                ) }
-            }
-        }
-    }
-
-    private suspend fun fetchFilteredProducts(
-        categoryName: String,
-        priceRange: String?,
-        selectedProductPortions: Set<String>
-    ): List<Product> {
-        return when {
-            priceRange != null && selectedProductPortions.isNotEmpty() -> {
-                val results = mutableListOf<Product>()
-                val (minPrice, maxPrice) = parsePriceRange(priceRange)
-                
-                for (portion in selectedProductPortions) {
-                    val products = getProductsByCategoryPriceAndDetailUseCase.execute(
-                        categoryName, minPrice, maxPrice, portion
-                    )
-                    results.addAll(products)
-                }
-                results.distinctBy { it.id }
-            }
-            priceRange != null -> {
-                val (minPrice, maxPrice) = parsePriceRange(priceRange)
-                getProductsByCategoryAndPriceUseCase.execute(categoryName, minPrice, maxPrice)
-            }
-            else -> {
-                val results = mutableListOf<Product>()
-                for (portion in selectedProductPortions) {
-                    val products = getProductsByCategoryAndDetailUseCase.execute(categoryName, portion)
-                    results.addAll(products)
-                }
-                results.distinctBy { it.id }
-            }
-        }
-    }
-
-    private fun parsePriceRange(priceRange: String): Pair<Double, Double> {
-        return when (priceRange) {
-            "Under $2" -> 0.0 to 2.0
-            "$2 - $4" -> 2.0 to 4.0
-            "$4 - $6" -> 4.0 to 6.0
-            "$6 - $8" -> 6.0 to 8.0
-            "$8 - $10" -> 8.0 to 10.0
-            "$10 - $12" -> 10.0 to 12.0
-            "$12 - $15" -> 12.0 to 15.0
-            "$15 - $20" -> 15.0 to 20.0
-            else -> 0.0 to Double.MAX_VALUE
-        }
+    private fun parsePriceRange(priceRange: PriceRange): Pair<Double, Double> {
+        return priceRange.minPrice to priceRange.maxPrice
     }
 }

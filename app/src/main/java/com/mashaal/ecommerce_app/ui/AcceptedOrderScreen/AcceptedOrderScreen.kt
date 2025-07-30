@@ -33,7 +33,7 @@ import com.mashaal.ecommerce_app.ui.theme.appTextStyles
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-fun AcceptedOrderScreen(onBackToHome: () -> Unit, totalPrice: Double,) {
+fun AcceptedOrderScreen(onBackToHome: () -> Unit, totalPrice: Double) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -41,43 +41,43 @@ fun AcceptedOrderScreen(onBackToHome: () -> Unit, totalPrice: Double,) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = MaterialTheme.appDimensions.paddingLarge),
+                .padding(horizontal = MaterialTheme.appDimensions.dimen24),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
-                Modifier.padding(end = MaterialTheme.appDimensions.paddingLarge)
+                Modifier.padding(end = MaterialTheme.appDimensions.dimen24)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.accepted_order_image),
                     contentDescription = stringResource(R.string.accepted_order_image),
                     modifier = Modifier
-                        .width(MaterialTheme.appDimensions.acceptedOrderImageSize)
-                        .height(MaterialTheme.appDimensions.acceptedOrderImageSize)
+                        .width(MaterialTheme.appDimensions.dimen350)
+                        .height(MaterialTheme.appDimensions.dimen350)
                 )
             }
-            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingLarge))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.dimen24))
             Text(
                 text = stringResource(R.string.order_accepted),
                 style = MaterialTheme.appTextStyles.orderAcceptedTitle(),
                 color = MaterialTheme.appColors.black,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingMedium))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.dimen16))
             Text(
                 text = stringResource(R.string.items_placed),
                 style = MaterialTheme.appTextStyles.orderAcceptedSubtitle(),
                 color = MaterialTheme.appColors.searchTextColor,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingMedium))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.dimen16))
             Text(
                 text = stringResource(R.string.total_price, totalPrice),
                 style = MaterialTheme.appTextStyles.orderAcceptedPrice(),
                 color = MaterialTheme.appColors.black,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingSmall))
+            Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.dimen8))
             GeneralButton(
                 onClick = {
                     onBackToHome()

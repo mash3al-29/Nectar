@@ -5,29 +5,28 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.mashaal.ecommerce_app.domain.usecase.GetProductByIdUseCase
 import com.mashaal.ecommerce_app.domain.usecase.AddToCartUseCase
-import kotlinx.coroutines.delay
+import com.mashaal.ecommerce_app.domain.usecase.IsProductInCartUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductScreenViewModel @Inject constructor(
     private val getProductByIdUseCase: GetProductByIdUseCase,
-    private val addToCartUseCase: AddToCartUseCase
+    private val addToCartUseCase: AddToCartUseCase,
+    private val isProductInCartUseCase: IsProductInCartUseCase
 ) : ViewModel() {
-    private val _state = MutableStateFlow(ProductScreenState())
-    val state: StateFlow<ProductScreenState> = _state.asStateFlow()
+    private val _state = MutableStateFlow<ProductScreenState>(ProductScreenState.Loading)
+    val state: StateFlow<ProductScreenState> = _state
 
     fun onEvent(event: ProductScreenEvent) {
         when (event) {
             is ProductScreenEvent.OnQuantityChanged -> {
-                _state.update { it.copy(quantity = event.quantity) }
+                updateSuccessState { it.copy(quantity = event.quantity) }
             }
             is ProductScreenEvent.OnFavoriteToggled -> {
-                _state.update { it.copy(isFavorite = !it.isFavorite) }
+                updateSuccessState { it.copy(isFavorite = !it.isFavorite) }
             }
             is ProductScreenEvent.OnAddToCartClicked -> {
                 addToCart()
@@ -36,70 +35,65 @@ class ProductScreenViewModel @Inject constructor(
                 shareProduct()
             }
             is ProductScreenEvent.OnShareConsumed -> {
-                _state.update { it.copy(shareData = null) }
+                updateSuccessState { it.copy(shareData = null) }
             }
         }
     }
     
     fun loadProductById(productId: Int) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, error = null) }
+            _state.value = ProductScreenState.Loading
             try {
-                val product = getProductByIdUseCase.execute(productId)
+                val product = getProductByIdUseCase(productId)
                 if (product != null) {
-                    _state.update { it.copy(
+                    val isInCart = isProductInCartUseCase(productId)
+                    _state.value = ProductScreenState.Success(
                         product = product,
-                        isLoading = false
-                    ) }
+                        isInCart = isInCart
+                    )
                 } else {
-                    _state.update { it.copy(
-                        isLoading = false,
-                        error = "Product not found"
-                    ) }
+                    _state.value = ProductScreenState.Error("Product not found")
                 }
             } catch (e: Exception) {
-                _state.update { it.copy(
-                    isLoading = false,
-                    error = e.message ?: "Unknown error occurred"
-                ) }
+                _state.value = ProductScreenState.Error(e.message ?: "Failed to load product")
             }
+        }
+    }
+    
+    private fun updateSuccessState(update: (ProductScreenState.Success) -> ProductScreenState.Success) {
+        val currentState = _state.value
+        if (currentState is ProductScreenState.Success) {
+            _state.value = update(currentState)
         }
     }
     
     private fun addToCart() {
         val currentState = _state.value
-        val product = currentState.product
-        if (product != null) {
+        if (currentState is ProductScreenState.Success && currentState.product != null) {
             viewModelScope.launch {
                 try {
-                    addToCartUseCase.execute(
-                        productId = product.id,
+                    addToCartUseCase(
+                        productId = currentState.product.id,
                         quantity = currentState.quantity,
-                        portion = product.detail
+                        portion = currentState.product.detail
                     )
-                    _state.update { it.copy(
-                        addToCartSuccess = true
-                    ) }
-                    delay(2000)
-                    _state.update { it.copy(addToCartSuccess = false) }
+                    updateSuccessState { it.copy(addToCartSuccess = true, isInCart = true) }
                 } catch (e: Exception) {
-                    _state.update { it.copy(
-                        error = e.message ?: "Failed to add to cart"
-                    ) }
+                    println("Failed to add product to cart: ${e.message}")
                 }
             }
         }
     }
-
+    
     private fun shareProduct() {
         val currentState = _state.value
-        val product = currentState.product
-        if (product != null) {
+        if (currentState is ProductScreenState.Success && currentState.product != null) {
+            val product = currentState.product
             val shareData = ShareData(
-                title = "Share Product",
-                text = "Check out this product: ${product.name} for $${product.price}"
+                title = "Share ${product.name}",
+                text = "Check out this product: ${product.name} - ${product.description} Only $${product.price}!"
             )
-            _state.update { it.copy(shareData = shareData) }
+            updateSuccessState { it.copy(shareData = shareData) }
         }
     }
 }

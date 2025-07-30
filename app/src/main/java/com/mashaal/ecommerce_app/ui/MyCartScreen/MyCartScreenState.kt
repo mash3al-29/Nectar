@@ -3,12 +3,16 @@ package com.mashaal.ecommerce_app.ui.MyCartScreen
 import com.mashaal.ecommerce_app.domain.model.Product
 import com.mashaal.ecommerce_app.domain.model.CartItem as DomainCartItem
 
-data class MyCartScreenState(
-    val cartItems: List<CartItem> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-    val totalPrice: Double = 0.0
-)
+sealed class MyCartScreenState {
+    data object Loading : MyCartScreenState()
+    
+    data class Success(
+        val cartItems: List<CartItem> = emptyList(),
+        val totalPrice: Double = 0.0
+    ) : MyCartScreenState()
+    
+    data class Error(val message: String) : MyCartScreenState()
+}
 
 data class CartItem(
     val product: Product,

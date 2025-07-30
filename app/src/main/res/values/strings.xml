@@ -17,11 +17,14 @@
     <string name="default_location">Alexandria, Egypt</string>
     <string name="banner_image">Banner Image %1$d</string>
     <string name="exclusive_offer">Exclusive Offer</string>
+    <string name="exclusive_offers">Exclusive Offers</string>
     <string name="see_all">See all</string>
     <string name="no_exclusive_offers">No exclusive offers available</string>
     <string name="best_selling">Best Selling</string>
+    <string name="best_selling_products">Best Selling Products</string>
     <string name="no_best_selling">No best selling products available</string>
     <string name="groceries">Groceries</string>
+    <string name="groceries_products">Grocery Products</string>
     <string name="no_grocery_products">No grocery products available</string>
     
     <!-- BottomNavBar -->
@@ -70,6 +73,9 @@
     
     <!-- Search -->
     <string name="no_products_found">No products found for \"%1$s\"</string>
+    <string name="no_products_found_for_filters">No products match the selected filters</string>
+    <string name="checked">Checked</string>
+    <string name="rotation_animation_label">Rotation Animation</string>
 
     <!-- General Messages -->
     <string name="error_prefix">Error: %1$s</string>

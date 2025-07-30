@@ -3,7 +3,6 @@ package com.mashaal.ecommerce_app.ui.MainScreen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -36,7 +35,8 @@ fun MainScreen(
     onProductClick: (Product) -> Unit = {},
     onSeeAllClick: (SeeAllSectionType) -> Unit = {}
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val currentState by viewModel.state.collectAsStateWithLifecycle()
+    val cartProductIds by viewModel.cartProductIds.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -45,148 +45,159 @@ fun MainScreen(
         containerColor = MaterialTheme.appColors.white,
         contentColor = MaterialTheme.appColors.white,
         ) { paddingValues ->
-        if (state.isLoading) {
-            LoadingState()
-        } else if (state.error.isNotBlank()) {
-            ErrorState(error = state.error)
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-                            focusManager.clearFocus()
-                            keyboardController?.hide()
-                        })
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.spacingExtraLarge))
-                Image(
-                    painter = painterResource(id = R.drawable.ic_nectar),
-                    contentDescription = stringResource(R.string.carrot_icon),
+        
+        when (val state = currentState) {
+            is MainScreenState.Loading -> {
+                LoadingState()
+            }
+            is MainScreenState.Error -> {
+                ErrorState(error = state.message)
+            }
+            is MainScreenState.Success -> {
+                Column(
                     modifier = Modifier
-                        .size(MaterialTheme.appDimensions.iconSizeMedium)
-                )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = MaterialTheme.appDimensions.paddingLarge,
-                            end = MaterialTheme.appDimensions.paddingLarge,
-                            top = MaterialTheme.appDimensions.paddingSmall
-                        ),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ){
-                    Icon(
-                        imageVector = AppIcons.Location,
-                        contentDescription = stringResource(R.string.location_icon),
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onTap = {
+                                focusManager.clearFocus()
+                                keyboardController?.hide()
+                            })
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.dimen32))
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_nectar),
+                        contentDescription = stringResource(R.string.carrot_icon),
                         modifier = Modifier
-                            .size(MaterialTheme.appDimensions.iconSizeLarge)
-                            .padding(end = MaterialTheme.appDimensions.spacingExtraSmall),
-                        tint = MaterialTheme.appColors.locationIconColor
+                            .size(MaterialTheme.appDimensions.dimen24)
                     )
-                    Text(
-                        text = stringResource(state.locationResId),
-                        style = MaterialTheme.appTextStyles.productDetail(),
-                        color = MaterialTheme.appColors.locationTextColor
-                    )
-                }
-                SearchBar(
-                    query = state.searchQuery,
-                    onQueryChange = { viewModel.onEvent(MainScreenEvent.OnSearchQueryChange(it)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = MaterialTheme.appDimensions.paddingLarge,
-                            end = MaterialTheme.appDimensions.paddingLarge,
-                            top = MaterialTheme.appDimensions.paddingLarge
-                        ),
-                    focusManager = focusManager,
-                    keyboardController = keyboardController!!
-                )
-                
-                if (state.isSearchActive) {
-                    SearchResultsContent(
-                        isSearching = state.isSearching,
-                        searchResults = state.searchResults,
-                        searchQuery = state.searchQuery,
-                        onProductClick = onProductClick,
-                        onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) },
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = MaterialTheme.appDimensions.paddingLarge)
-                    )
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = MaterialTheme.appDimensions.paddingLarge)
-                            .verticalScroll(rememberScrollState()),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        BannerCarousel(
+                            .fillMaxWidth()
+                            .padding(
+                                start = MaterialTheme.appDimensions.dimen24,
+                                end = MaterialTheme.appDimensions.dimen24,
+                                top = MaterialTheme.appDimensions.dimen8
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ){
+                        Icon(
+                            imageVector = AppIcons.Location,
+                            contentDescription = stringResource(R.string.location_icon),
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    horizontal = MaterialTheme.appDimensions.paddingLarge,
-                                    vertical = MaterialTheme.appDimensions.paddingSmall
-                                )
+                                .size(MaterialTheme.appDimensions.dimen28)
+                                .padding(end = MaterialTheme.appDimensions.dimen4),
+                            tint = MaterialTheme.appColors.locationIconColor
                         )
-                
-                        HeaderRow(R.string.exclusive_offer, {
-                            onSeeAllClick(SeeAllSectionType.EXCLUSIVE_OFFERS)
-                        })
-                        if (state.exclusiveOffers.isNotEmpty()) {
-                            ProductsRow(
-                                products = state.exclusiveOffers,
-                                onProductClick = onProductClick,
-                                onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) }
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.no_exclusive_offers),
-                                style = MaterialTheme.appTextStyles.emptyStateText(),
-                                modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.paddingLarge)
-                            )
-                        }
+                        Text(
+                            text = stringResource(state.locationResId),
+                            style = MaterialTheme.appTextStyles.productDetail(),
+                            color = MaterialTheme.appColors.locationTextColor
+                        )
+                    }
+                    SearchBar(
+                        query = state.searchQuery,
+                        onQueryChange = { viewModel.onEvent(MainScreenEvent.OnSearchQueryChange(it)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = MaterialTheme.appDimensions.dimen24,
+                                end = MaterialTheme.appDimensions.dimen24,
+                                top = MaterialTheme.appDimensions.dimen24
+                            ),
+                        focusManager = focusManager,
+                        keyboardController = keyboardController!!
+                    )
+                    
+                    if (state.isSearchActive) {
+                        SearchResultsContent(
+                            isSearching = state.isSearching,
+                            searchResults = state.searchResults,
+                            searchQuery = state.searchQuery,
+                            onProductClick = onProductClick,
+                            onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) },
+                            cartProductIds = cartProductIds,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = MaterialTheme.appDimensions.dimen24)
+                        )
+                    } else {
+                        val verticalScrollState = rememberScrollState()
                         
-                        HeaderRow(R.string.best_selling, {
-                            onSeeAllClick(SeeAllSectionType.BEST_SELLING)
-                        })
-                        if (state.bestSelling.isNotEmpty()) {
-                            ProductsRow(
-                                products = state.bestSelling,
-                                onProductClick = onProductClick,
-                                onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = MaterialTheme.appDimensions.dimen24)
+                                .verticalScroll(verticalScrollState),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            BannerCarousel(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = MaterialTheme.appDimensions.dimen24,
+                                        vertical = MaterialTheme.appDimensions.dimen8
+                                    )
                             )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.no_best_selling),
-                                style = MaterialTheme.appTextStyles.emptyStateText(),
-                                modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.paddingLarge)
-                            )
+                    
+                            HeaderRow(R.string.exclusive_offer) {
+                                onSeeAllClick(SeeAllSectionType.EXCLUSIVE_OFFERS)
+                            }
+                            if (state.exclusiveOffers.isNotEmpty()) {
+                                ProductsRow(
+                                    products = state.exclusiveOffers,
+                                    onProductClick = onProductClick,
+                                    onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) },
+                                    cartProductIds = cartProductIds
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(R.string.no_exclusive_offers),
+                                    style = MaterialTheme.appTextStyles.emptyStateText(),
+                                    modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.dimen24)
+                                )
+                            }
+                            
+                            HeaderRow(R.string.best_selling) {
+                                onSeeAllClick(SeeAllSectionType.BEST_SELLING)
+                            }
+                            if (state.bestSelling.isNotEmpty()) {
+                                ProductsRow(
+                                    products = state.bestSelling,
+                                    onProductClick = onProductClick,
+                                    onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) },
+                                    cartProductIds = cartProductIds
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(R.string.no_best_selling),
+                                    style = MaterialTheme.appTextStyles.emptyStateText(),
+                                    modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.dimen24)
+                                )
+                            }
+                            
+                            HeaderRow(R.string.groceries) {
+                                onSeeAllClick(SeeAllSectionType.GROCERIES)
+                            }
+                            if (state.groceries.isNotEmpty()) {
+                                ProductsRow(
+                                    products = state.groceries,
+                                    onProductClick = onProductClick,
+                                    onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) },
+                                    cartProductIds = cartProductIds
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(R.string.no_grocery_products),
+                                    style = MaterialTheme.appTextStyles.emptyStateText(),
+                                    modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.dimen24)
+                                )
+                            }
+                            Spacer(Modifier.height(MaterialTheme.appDimensions.dimen32))
                         }
-                        
-                        HeaderRow(R.string.groceries, {
-                            onSeeAllClick(SeeAllSectionType.GROCERIES)
-                        })
-                        if (state.groceries.isNotEmpty()) {
-                            ProductsRow(
-                                products = state.groceries,
-                                onProductClick = onProductClick,
-                                onAddToCartClick = { product -> viewModel.onEvent(MainScreenEvent.OnAddToCartClicked(product)) }
-                            )
-                        } else {
-                            Text(
-                                text = stringResource(R.string.no_grocery_products),
-                                style = MaterialTheme.appTextStyles.emptyStateText(),
-                                modifier = Modifier.padding(horizontal = MaterialTheme.appDimensions.paddingLarge)
-                            )
-                        }
-                        Spacer(Modifier.height(MaterialTheme.appDimensions.spacingExtraLarge))
                     }
                 }
             }

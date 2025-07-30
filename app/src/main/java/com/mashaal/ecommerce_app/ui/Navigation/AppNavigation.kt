@@ -23,14 +23,20 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mashaal.ecommerce_app.ui.AcceptedOrderScreen.AcceptedOrderScreen
 import com.mashaal.ecommerce_app.ui.OnStartScreen.OnStartScreen
+import com.mashaal.ecommerce_app.ui.OnStartScreen.OnStartScreenViewModel
 import com.mashaal.ecommerce_app.ui.SplashScreen.SplashScreen
 import com.mashaal.ecommerce_app.ui.MainScreen.MainScreen
 import com.mashaal.ecommerce_app.ui.ProductScreen.ProductScreen
 import com.mashaal.ecommerce_app.ui.ProductScreen.ProductScreenViewModel
 import com.mashaal.ecommerce_app.ui.CategoriesScreen.CategoriesScreen
 import com.mashaal.ecommerce_app.ui.CategorySelectedScreen.CategorySelectedScreen
+import com.mashaal.ecommerce_app.ui.CategorySelectedScreen.CategorySelectedViewModel
+import com.mashaal.ecommerce_app.ui.CategorySelectedScreen.CategorySelectedState
 import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreen
 import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreenViewModel
+import com.mashaal.ecommerce_app.ui.FilterScreen.FilterScreenEvent
+import com.mashaal.ecommerce_app.ui.FilterScreen.PriceRange
+import com.mashaal.ecommerce_app.ui.FilterScreen.ProductPortion
 import com.mashaal.ecommerce_app.ui.MainScreen.MainScreenViewModel
 import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreen
 import com.mashaal.ecommerce_app.ui.MyCartScreen.MyCartScreenViewModel
@@ -98,6 +104,9 @@ fun AppNavigation() {
                 SplashScreen(
                     onNavigateToHomeFromSplash = {
                         actions.navigateToHomeFromSplash()
+                    },
+                    onNavigateToMainFromSplash = {
+                        actions.navigateToMainFromSplash()
                     }
                 )
             }
@@ -110,10 +119,12 @@ fun AppNavigation() {
                     fadeOut(tween(500))
                 }
             ) {
+                val viewModel = hiltViewModel<OnStartScreenViewModel>()
                 OnStartScreen(
                     onNavigateToMainScreen = {
                         actions.navigateToMainScreen()
-                    }
+                    },
+                    viewModel = viewModel
                 )
             }
             composable(
@@ -169,21 +180,21 @@ fun AppNavigation() {
                 }
             ) { backStackEntry ->
                 val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
-                
-                val priceRange = backStackEntry.savedStateHandle.get<String?>("selectedPriceRange")
-                val productPortions = backStackEntry.savedStateHandle.get<Set<String>>("selectedProductPortions")
-                
-                val filterResults: Pair<String?, Set<String>>? = if (priceRange != null || (productPortions != null && productPortions.isNotEmpty())) {
-                    Pair(priceRange, productPortions ?: emptySet<String>())
-                } else {
-                    null
+                val priceRange = backStackEntry.savedStateHandle.get<PriceRange?>("selectedPriceRange")
+                val productPortions = backStackEntry.savedStateHandle.get<Set<ProductPortion>>("selectedProductPortions")
+                val filterResults: Pair<PriceRange?, Set<ProductPortion>>? =
+                    if (priceRange != null || (productPortions != null && productPortions.isNotEmpty())) {
+                        Pair(priceRange, productPortions ?: emptySet())
+                    } else {
+                        null
+                    }
+                LaunchedEffect(filterResults) {
+                    if (filterResults != null) {
+                        backStackEntry.savedStateHandle.remove<PriceRange>("selectedPriceRange")
+                        backStackEntry.savedStateHandle.remove<Set<ProductPortion>>("selectedProductPortions")
+                    }
                 }
-                
-                if (filterResults != null) {
-                    backStackEntry.savedStateHandle.remove<String>("selectedPriceRange")
-                    backStackEntry.savedStateHandle.remove<Set<String>>("selectedProductPortions")
-                }
-                
+                val viewModel = hiltViewModel<CategorySelectedViewModel>()
                 CategorySelectedScreen(
                     categoryName = categoryName,
                     onBackClick = { navController.popBackStack() },
@@ -191,9 +202,15 @@ fun AppNavigation() {
                         actions.navigateToProductDetail(product.id)
                     },
                     navigateToFilter = { category ->
-                        actions.navigateToFilter(category)
+                        val currentState = (viewModel.state.value as? CategorySelectedState.Success)
+                        actions.navigateToFilter(
+                            category, 
+                            currentState?.selectedPriceRange,
+                            currentState?.selectedProductPortions ?: emptySet()
+                        )
                     },
-                    filterResults = filterResults
+                    filterResults = filterResults,
+                    viewModel = viewModel
                 )
             }
             composable(
@@ -228,6 +245,19 @@ fun AppNavigation() {
                 )
             ) { backStackEntry ->
                 val viewModel = hiltViewModel<FilterScreenViewModel>()
+                val currentPriceRangeOrdinal = backStackEntry.savedStateHandle.get<Int?>("currentPriceRangeOrdinal")
+                val currentProductPortions = backStackEntry.savedStateHandle.get<Set<ProductPortion>>("currentProductPortions") ?: emptySet()
+                
+                LaunchedEffect(currentPriceRangeOrdinal, currentProductPortions) {
+                    currentPriceRangeOrdinal?.let { ordinal ->
+                        val priceRange = PriceRange.entries.getOrNull(ordinal)
+                        viewModel.onEvent(FilterScreenEvent.OnPriceRangeSelected(priceRange))
+                    }
+                    currentProductPortions.forEach { portion ->
+                        viewModel.onEvent(FilterScreenEvent.OnProductPortionSelected(portion))
+                    }
+                }
+                
                 FilterScreen(
                     onBackClick = { navController.navigateUp() },
                     onApplyFilter = { selectedPriceRange, selectedProductPortions ->
@@ -253,10 +283,9 @@ fun AppNavigation() {
                 val viewModel = hiltViewModel<MyCartScreenViewModel>()
                 MyCartScreen(
                     viewModel,
-                    { price ->
-                        actions.navigateToOnAcceptedScreen(price)
-                    },
-                )
+                ) { price ->
+                    actions.navigateToOnAcceptedScreen(price)
+                }
             }
             composable(
                 route = Screen.AcceptedOrder.route,
@@ -276,13 +305,13 @@ fun AppNavigation() {
             composable(
                 route = Screen.SeeAll.route,
                 arguments = listOf(
-                    navArgument("sectionType") { type = NavType.StringType }
+                    navArgument("sectionType") { type = NavType.IntType }
                 ),
                 enterTransition = { fadeIn(animationSpec = tween(500)) },
                 exitTransition = { fadeOut(animationSpec = tween(500)) }
             ) { backStackEntry ->
-                val sectionTypeArg = backStackEntry.arguments?.getString("sectionType") ?: ""
-                val sectionType = SeeAllSectionType.valueOf(sectionTypeArg)
+                val sectionTypeOrdinal = backStackEntry.arguments?.getInt("sectionType") ?: 0
+                val sectionType = SeeAllSectionType.entries.toTypedArray().getOrElse(sectionTypeOrdinal) { SeeAllSectionType.EXCLUSIVE_OFFERS }
                 val viewModel = hiltViewModel<SeeAllViewModel>()
                 SeeAllScreen(
                     sectionType = sectionType,
@@ -302,32 +331,35 @@ class NavigationActions(private val navController: NavHostController) {
                 popUpTo(Screen.Splash.route) { inclusive = true }
             }
         }
-
+        fun navigateToMainFromSplash() {
+            navController.navigate(Screen.Main.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+        }
         fun navigateToMainScreen() {
             navController.navigate(Screen.Main.route) {
                 popUpTo(Screen.OnStart.route) { inclusive = true }
             }
         }
-
         fun navigateToProductDetail(productId: Int) {
             navController.navigate(Screen.ProductDetail.createRoute(productId))
         }
-
         fun navigateToCategorySelected(categoryName: String) {
             navController.navigate(Screen.CategorySelected.createRoute(categoryName))
         }
-
-        fun navigateToFilter(categoryName: String) {
+        fun navigateToFilter(categoryName: String, currentPriceRange: PriceRange? = null, currentProductPortions: Set<ProductPortion> = emptySet()) {
             navController.navigate(Screen.Filter.createRoute(categoryName))
+            // Store price range as ordinal for reliable serialization/deserialization
+            navController.currentBackStackEntry?.savedStateHandle?.set("currentPriceRangeOrdinal", currentPriceRange?.ordinal)
+            // Store ProductPortion enums directly - no fragile text conversion needed!
+            navController.currentBackStackEntry?.savedStateHandle?.set("currentProductPortions", currentProductPortions)
         }
-
         fun navigateToOnAcceptedScreen(totalPrice: Double) {
             navController.navigate(Screen.AcceptedOrder.createRoute(totalPrice)) {
                 popUpTo(0) { inclusive = true }
             }
         }
-        
         fun navigateToSeeAll(sectionType: SeeAllSectionType) {
-            navController.navigate(Screen.SeeAll.createRoute(sectionType.name))
+            navController.navigate(Screen.SeeAll.createRoute(sectionType.ordinal.toString()))
         }
 }
