@@ -21,6 +21,14 @@ listenablefuture = "9999.0-empty-to-avoid-conflict-with-guava"
 multidex = "2.0.1"
 concurrent = "1.1.0"
 coil = "2.7.0"
+mockito = "5.11.0"
+mockitoKotlin = "5.2.1"
+truth = "1.4.2"
+hiltTesting = "2.56.2"
+junitKtx = "1.2.1"
+mockk = "1.13.10"
+turbine = "1.1.0"
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -55,6 +63,14 @@ concurrent-futures = { module = "androidx.concurrent:concurrent-futures", versio
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+google-truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hiltTesting" }
+hilt-compiler-testing = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hiltTesting" }
+androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "junitKtx" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

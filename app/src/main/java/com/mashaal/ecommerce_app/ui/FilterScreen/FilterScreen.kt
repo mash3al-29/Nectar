@@ -126,7 +126,6 @@ fun FilterScreen(
                     }
                     
                     Spacer(modifier = Modifier.height(MaterialTheme.appDimensions.dimen32))
-                    
                     Text(
                         text = stringResource(R.string.product_portion),
                         style = MaterialTheme.appTextStyles.sectionHeader(),

@@ -57,10 +57,12 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.androidx.junit.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
@@ -78,8 +80,28 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.coil.compose)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.google.truth)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(libs.hilt.android.testing)
+    kaptAndroidTest(libs.hilt.compiler.testing)
+    testImplementation(libs.hilt.android.testing)
+    kaptTest(libs.hilt.compiler.testing)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(kotlin("test"))
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
 }
 
 hilt {
     enableAggregatingTask = false
+}
+
+kapt {
+    correctErrorTypes = true
 }

@@ -16,24 +16,29 @@ class CartRepositoryImpl @Inject constructor(
     private val cartDao: CartDao,
     private val productDao: ProductDao
 ) : CartRepository {
-    
+
     override fun getCart(): Flow<Cart> {
         return cartDao.getAllCartItems().map { cartEntities ->
+            val productIds = cartEntities.map { it.productId }
+            val productMap = productDao.getProductsByIds(productIds)
+                .associateBy { it.id }
+                .mapValues { it.value.toDomainModel() }
+
             val cartItems = cartEntities.mapNotNull { cartEntity ->
-                val product = productDao.getProductById(cartEntity.productId)
-                product?.let {
+                productMap[cartEntity.productId]?.let { product ->
                     CartItem(
-                        product = it.toDomainModel(),
+                        product = product,
                         quantity = cartEntity.quantity,
                         portion = cartEntity.portion,
                         addedAt = cartEntity.addedAt
                     )
                 }
             }
+
             Cart(items = cartItems).calculateTotals()
         }
     }
-    
+
     override suspend fun addToCart(productId: Int, quantity: Int, portion: String) {
         val existingItem = cartDao.getCartItemByProductId(productId)
         if (existingItem != null) {
@@ -48,7 +53,7 @@ class CartRepositoryImpl @Inject constructor(
             cartDao.insertCartItem(cartEntity)
         }
     }
-    
+
     override suspend fun removeFromCart(productId: Int) {
         cartDao.deleteCartItem(productId)
     }
@@ -64,16 +69,16 @@ class CartRepositoryImpl @Inject constructor(
             cartDao.updateQuantity(productId, quantity)
         }
     }
-    
+
     override suspend fun getCartItemCount(): Int {
         return cartDao.getCartItemCount()
     }
-    
+
     override suspend fun getTotalQuantity(): Int {
         return cartDao.getTotalQuantity() ?: 0
     }
-    
+
     override suspend fun isProductInCart(productId: Int): Boolean {
         return cartDao.getCartItemByProductId(productId) != null
     }
-} 
+}

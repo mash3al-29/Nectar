@@ -221,9 +221,7 @@ fun CartItemRow(
                     quantity = cartItem.quantity,
                     price = "$${String.format(Locale.US,"%.2f", cartItem.totalPrice)}",
                     onQuantityDecrease = {
-                        if (cartItem.quantity > 1) {
-                            onQuantityChanged(cartItem.quantity - 1)
-                        }
+                        onQuantityChanged(cartItem.quantity - 1)
                     },
                     onQuantityIncrease = {
                         if (cartItem.quantity < 99) {

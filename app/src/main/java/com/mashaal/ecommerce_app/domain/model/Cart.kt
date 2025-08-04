@@ -23,4 +23,4 @@ data class CartItem(
 ) {
     val totalPrice: Double
         get() = product.price * quantity
-} 
+}
