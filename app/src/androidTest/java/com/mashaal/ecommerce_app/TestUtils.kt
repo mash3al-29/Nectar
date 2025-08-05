@@ -51,7 +51,6 @@ class TestUtils {
         fun testCartItem(
             productId: Int = 1,
             quantity: Int = 2,
-            portion: String = "Medium",
             price: Double = 10.0,
             addedAt: Long = System.currentTimeMillis()
         ): CartItem {
@@ -59,7 +58,6 @@ class TestUtils {
             return CartItem(
                 product = product,
                 quantity = quantity,
-                portion = portion,
                 addedAt = addedAt
             )
         }

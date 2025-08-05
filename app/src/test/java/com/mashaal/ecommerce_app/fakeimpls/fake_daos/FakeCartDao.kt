@@ -25,7 +25,7 @@ class FakeCartDao : CartDao {
     }
 
     override suspend fun updateCartItem(cartItem: CartEntity) {
-        insertCartItem(cartItem) // same behavior
+        insertCartItem(cartItem)
     }
 
     override suspend fun updateQuantity(productId: Int, quantity: Int) {

@@ -349,9 +349,7 @@ class NavigationActions(private val navController: NavHostController) {
         }
         fun navigateToFilter(categoryName: String, currentPriceRange: PriceRange? = null, currentProductPortions: Set<ProductPortion> = emptySet()) {
             navController.navigate(Screen.Filter.createRoute(categoryName))
-            // Store price range as ordinal for reliable serialization/deserialization
             navController.currentBackStackEntry?.savedStateHandle?.set("currentPriceRangeOrdinal", currentPriceRange?.ordinal)
-            // Store ProductPortion enums directly - no fragile text conversion needed!
             navController.currentBackStackEntry?.savedStateHandle?.set("currentProductPortions", currentProductPortions)
         }
         fun navigateToOnAcceptedScreen(totalPrice: Double) {

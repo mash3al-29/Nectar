@@ -51,7 +51,7 @@ class MyCartScreenViewModelTest {
     @Test
     fun `initial state emits Success when cart is returned`() = runTest {
         val fakeCart = Cart(
-            items = listOf(TestUtils.testCartItem(productId = 1, quantity = 2, portion = "Large")),
+            items = listOf(TestUtils.testCartItem(productId = 1, quantity = 2)),
             totalPrice = 10.0
         )
         every { getCartUseCase.invoke() } returns flowOf(fakeCart)

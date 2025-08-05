@@ -19,6 +19,5 @@ data class CartEntity(
     @PrimaryKey
     val productId: Int,
     val quantity: Int,
-    val portion: String,
     val addedAt: Long = System.currentTimeMillis()
 ) 

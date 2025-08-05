@@ -74,8 +74,7 @@ class ProductScreenViewModel @Inject constructor(
                 try {
                     addToCartUseCase(
                         productId = currentState.product.id,
-                        quantity = currentState.quantity,
-                        portion = currentState.product.detail
+                        quantity = currentState.quantity
                     )
                     updateSuccessState { it.copy(addToCartSuccess = true, isInCart = true) }
                 } catch (e: Exception) {

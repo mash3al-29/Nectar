@@ -33,22 +33,22 @@ class CartRepositoryImplTest {
 
     @Test
     fun addToCart_insertsItemCorrectly() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 2, portion = "Large")
+        cartRepository.addToCart(productId = 1, quantity = 2)
         assertEquals(1, fakeCartDao.getCartItemCount())
         assertEquals(2, fakeCartDao.getTotalQuantity())
     }
 
     @Test
     fun removeFromCart_deletesItem() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 2, portion = "Small")
+        cartRepository.addToCart(productId = 1, quantity = 2)
         cartRepository.removeFromCart(productId = 1)
         assertEquals(0, fakeCartDao.getCartItemCount())
     }
 
     @Test
     fun removeAllFromCart_deletesAllItems() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 1, portion = "M")
-        cartRepository.addToCart(productId = 2, quantity = 1, portion = "L")
+        cartRepository.addToCart(productId = 1, quantity = 1)
+        cartRepository.addToCart(productId = 2, quantity = 1)
         cartRepository.removeAllFromCart()
         assertEquals(0, fakeCartDao.getCartItemCount())
         assertEquals(0, fakeCartDao.getTotalQuantity())
@@ -56,21 +56,21 @@ class CartRepositoryImplTest {
 
     @Test
     fun updateQuantity_updatesCorrectly() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 1, portion = "Small")
+        cartRepository.addToCart(productId = 1, quantity = 1)
         cartRepository.updateQuantity(productId = 1, quantity = 5)
         assertEquals(5, fakeCartDao.getTotalQuantity())
     }
 
     @Test
     fun getTotalQuantity_returnsCorrectSum() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 2, portion = "Medium")
-        cartRepository.addToCart(productId = 2, quantity = 3, portion = "Large")
+        cartRepository.addToCart(productId = 1, quantity = 2)
+        cartRepository.addToCart(productId = 2, quantity = 3)
         assertEquals(5, cartRepository.getTotalQuantity())
     }
 
     @Test
     fun isProductInCart_returnsTrueIfExists() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 1, portion = "Large")
+        cartRepository.addToCart(productId = 1, quantity = 1)
         assertTrue(cartRepository.isProductInCart(1))
     }
 
@@ -83,8 +83,8 @@ class CartRepositoryImplTest {
     fun getCart_returnsCorrectCartItems() = runTest {
         fakeProductDao.insertProduct(TestUtils.testProduct(id = 1, name = "Apple", price = 5.0))
         fakeProductDao.insertProduct(TestUtils.testProduct(id = 2, name = "Banana", price = 3.0))
-        cartRepository.addToCart(productId = 1, quantity = 1, portion = "Small")
-        cartRepository.addToCart(productId = 2, quantity = 1, portion = "Large")
+        cartRepository.addToCart(productId = 1, quantity = 1)
+        cartRepository.addToCart(productId = 2, quantity = 1)
         cartRepository.getCart().test{
             val result = awaitItem()
             assertEquals(2, result.items.size)
@@ -97,8 +97,8 @@ class CartRepositoryImplTest {
 
     @Test
     fun getCartItemCount_returnsCorrectCount() = runTest {
-        cartRepository.addToCart(productId = 1, quantity = 1, portion = "S")
-        cartRepository.addToCart(productId = 2, quantity = 1, portion = "L")
+        cartRepository.addToCart(productId = 1, quantity = 1)
+        cartRepository.addToCart(productId = 2, quantity = 1)
         assertEquals(2, cartRepository.getCartItemCount())
     }
 }

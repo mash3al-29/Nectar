@@ -18,9 +18,11 @@ data class Cart(
 data class CartItem(
     val product: Product,
     val quantity: Int,
-    val portion: String,
     val addedAt: Long = System.currentTimeMillis()
 ) {
     val totalPrice: Double
         get() = product.price * quantity
+    
+    val portion: String
+        get() = product.detail
 }

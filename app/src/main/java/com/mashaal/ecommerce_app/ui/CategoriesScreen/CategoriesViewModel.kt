@@ -123,8 +123,7 @@ class CategoriesViewModel @Inject constructor(
             try {
                 addToCartUseCase(
                     productId = product.id,
-                    quantity = 1,
-                    portion = product.detail
+                    quantity = 1
                 )
             } catch (e: Exception) {
                 println("Failed to add product to cart: ${e.message}")

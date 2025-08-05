@@ -16,18 +16,19 @@ sealed class MyCartScreenState {
 
 data class CartItem(
     val product: Product,
-    val quantity: Int,
-    val portion: String
+    val quantity: Int
 ) {
     val totalPrice: Double
         get() = product.price * quantity
+    
+    val portion: String
+        get() = product.detail
 }
 
 fun DomainCartItem.toUIModel(): CartItem {
     return CartItem(
         product = this.product,
-        quantity = this.quantity,
-        portion = this.portion
+        quantity = this.quantity
     )
 }
 

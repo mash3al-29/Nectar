@@ -29,7 +29,6 @@ class CartRepositoryImpl @Inject constructor(
                     CartItem(
                         product = product,
                         quantity = cartEntity.quantity,
-                        portion = cartEntity.portion,
                         addedAt = cartEntity.addedAt
                     )
                 }
@@ -39,7 +38,7 @@ class CartRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addToCart(productId: Int, quantity: Int, portion: String) {
+    override suspend fun addToCart(productId: Int, quantity: Int) {
         val existingItem = cartDao.getCartItemByProductId(productId)
         if (existingItem != null) {
             val newQuantity = existingItem.quantity + quantity
@@ -47,8 +46,7 @@ class CartRepositoryImpl @Inject constructor(
         } else {
             val cartEntity = CartEntity(
                 productId = productId,
-                quantity = quantity,
-                portion = portion
+                quantity = quantity
             )
             cartDao.insertCartItem(cartEntity)
         }

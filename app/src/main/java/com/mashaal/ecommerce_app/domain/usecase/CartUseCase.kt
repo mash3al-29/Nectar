@@ -16,8 +16,8 @@ class GetCartUseCase @Inject constructor(
 class AddToCartUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend operator fun invoke(productId: Int, quantity: Int, portion: String) {
-        cartRepository.addToCart(productId, quantity, portion)
+    suspend operator fun invoke(productId: Int, quantity: Int) {
+        cartRepository.addToCart(productId, quantity)
     }
 }
 

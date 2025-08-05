@@ -21,20 +21,19 @@ class FakeCartRepository(
             val items = entities.mapNotNull { entity ->
                 val product = productDao.getProductById(entity.productId)?.toDomain()
                 product?.let {
-                    CartItem(it, entity.quantity, entity.portion, entity.addedAt)
+                    CartItem(it, entity.quantity, entity.addedAt)
                 }
             }
             Cart(items).calculateTotals()
         }
     }
 
-    override suspend fun addToCart(productId: Int, quantity: Int, portion: String) {
+    override suspend fun addToCart(productId: Int, quantity: Int) {
         val existing = cartDao.getCartItemByProductId(productId)
         val updatedQty = (existing?.quantity ?: 0) + quantity
         val newEntity = CartEntity(
             productId = productId,
             quantity = updatedQty,
-            portion = portion,
             addedAt = 545654
         )
         cartDao.insertCartItem(newEntity)
