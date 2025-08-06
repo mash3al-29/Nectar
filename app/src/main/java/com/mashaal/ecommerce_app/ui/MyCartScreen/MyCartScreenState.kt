@@ -1,0 +1,39 @@
+package com.mashaal.ecommerce_app.ui.MyCartScreen
+
+import com.mashaal.ecommerce_app.domain.model.Product
+import com.mashaal.ecommerce_app.domain.model.CartItem as DomainCartItem
+
+sealed class MyCartScreenState {
+    data object Loading : MyCartScreenState()
+    
+    data class Success(
+        val cartItems: List<CartItem> = emptyList(),
+        val totalPrice: Double = 0.0
+    ) : MyCartScreenState()
+    
+    data class Error(val message: String) : MyCartScreenState()
+}
+
+data class CartItem(
+    val product: Product,
+    val quantity: Int
+) {
+    val totalPrice: Double
+        get() = product.price * quantity
+    
+    val portion: String
+        get() = product.detail
+}
+
+fun DomainCartItem.toUIModel(): CartItem {
+    return CartItem(
+        product = this.product,
+        quantity = this.quantity
+    )
+}
+
+sealed class MyCartScreenEvent {
+    data class OnQuantityChanged(val productId: Int, val quantity: Int) : MyCartScreenEvent()
+    data class OnRemoveItem(val productId: Int) : MyCartScreenEvent()
+    data object OnCheckoutClicked : MyCartScreenEvent()
+}
