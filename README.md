@@ -50,11 +50,24 @@ We've also incorporated **MVI (Model-View-Intent)** structure concepts within ou
 **Implementation Example:**
 ```kotlin
 // MVI-style state management
-data class MainScreenState(
-    val exclusiveOffers: List<Product> = emptyList(),
-    val isLoading: Boolean = false,
-    val searchQuery: String = ""
-)
+sealed class MainScreenState {
+    data object Loading : MainScreenState()
+    data class Success(
+        val exclusiveOffers: List<Product> = emptyList(),
+        val bestSelling: List<Product> = emptyList(),
+        val groceries: List<Product> = emptyList(),
+        val searchResults: List<Product> = emptyList(),
+        val isSearching: Boolean = false,
+        val searchQuery: String = "",
+        val selectedCategory: String? = null,
+        val locationResId: Int = R.string.default_location,
+        val selectedTabIndex: Int = 0,
+    ) : MainScreenState() {
+        val isSearchActive: Boolean
+            get() = searchQuery.isNotBlank()
+    }
+    data class Error(val message: String) : MainScreenState()
+}
 
 // MVI-style events
 sealed class MainScreenEvent {
@@ -167,9 +180,9 @@ val state: StateFlow<MainScreenState> = _state.asStateFlow()
 **Implementation**:
 ```kotlin
 // Entity has mapping functions
-fun toDomainModel(): Product { ... }
+fun toDomainModel(): Product {  }
 companion object {
-    fun fromDomainModel(product: Product): ProductEntity { ... }
+    fun fromDomainModel(product: Product): ProductEntity { }
 }
 ```
 
